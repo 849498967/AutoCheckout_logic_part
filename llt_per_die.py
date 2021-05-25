@@ -12,6 +12,11 @@ class LltPerDieClass:
     """
 
     def __init__(self, name, mt_class, trim_class, product):
+        # jason
+        self.add_112 = '0x00'
+        self.add_172 = '0x00'
+        self.add_FB = '0x00'
+
         self.product = product
         self.flag = 0
         self.name = name
@@ -224,26 +229,41 @@ class LltPerDieClass:
         self.id_expect = data_in_mapping.id_mapping(
             self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
         for id_expect_key in self.id_expect:
-
+            if product == "CSS":
+                if id_expect_key == 7:
+                    self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
+                    #print(self.id_expect[id_expect_key])
+                if id_expect_key == 8:
+                    self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
+                    if (int(add3,16)&int('0x02',16)) != 0:
+                        self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
+                                                     (int('0x00', 16) &int('0x08', 16)))
+                    #print(self.id_expect[id_expect_key])
+                if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
+                    self.id_result[id_expect_key] = 'Y'
+                else:
+                    self.id_result[id_expect_key] = 'N'
+                    self.id_result_excel = 0
             # print(id_expect_key)
             #print(self.id_expect[id_expect_key])
             # print(self.id_dict)
             # print(self.id_dict[str(id_expect_key)])
             # add---ID byte7/8 revision&maturity &ODT check----Maurice
-            if id_expect_key == 7:
-                self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
-                #print(self.id_expect[id_expect_key])
-            if id_expect_key == 8:
-                self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
-                if (int(add3,16)&int('0x02',16)) != 0:
-                    self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
-                                                 (int('0x00', 16) &int('0x08', 16)))
-                #print(self.id_expect[id_expect_key])
-            if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
-                self.id_result[id_expect_key] = 'Y'
             else:
-                self.id_result[id_expect_key] = 'N'
-                self.id_result_excel = 0
+                if id_expect_key == 7:
+                    self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
+                    #print(self.id_expect[id_expect_key])
+                if id_expect_key == 8:
+                    self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
+                    if (int(add3,16)&int('0x02',16)) != 0:
+                        self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
+                                                     (int('0x00', 16) &int('0x08', 16)))
+                    #print(self.id_expect[id_expect_key])
+                if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
+                    self.id_result[id_expect_key] = 'Y'
+                else:
+                    self.id_result[id_expect_key] = 'N'
+                    self.id_result_excel = 0
     def lwxy_input(self, lot, wafer, x_coordinator, y_coordinator, ds_ver, sort_date):
         """
         lot, wafer, X coordinator, Y coordinator data collection
@@ -1776,7 +1796,12 @@ class LltPerDieClass:
                           #'expect=', hex(cal_result).split('x')[1], 'NOT MATCH!!!')
         #print(self.key_para_expect)
         #print(file_read_class.mt_class_list[0].key_para_dict)
+
+    '''
+        jaoson: decode the NNT datalog line by line
+    '''
     def llt_line_input(self, llt_line):
+        # jason: add product name
         # Only check E0 status after print POR
         if re_match(r'TESTSTART POR', llt_line):
             self.under_por = True
@@ -1891,6 +1916,7 @@ class LltPerDieClass:
             if trim_romfuse_read:
                 self.trim_romfuse_input(trim_romfuse_read.group(1), trim_romfuse_read.group(2))
                 #add for ID revision check
+                # jason: if trim is not run, self.add_112 will be un-defined!!! pre-define these 3 param value at begining
                 if trim_romfuse_read.group(1) == '0x112':
                     self.add_112 = trim_romfuse_read.group(2)
                     #print(trim_romfuse_read.group(2))
@@ -1929,10 +1955,11 @@ class LltPerDieClass:
             except:
                 pass
             # print(111)
-            try:
-                self.id_match_result(self.add_112,self.add_172,self.add_FB, product="CSS")
-            except:
-                pass
+            # try:
+            self.id_match_result(self.add_112,self.add_172,self.add_FB, product=self.product)
+            # except:
+            #     print("id check fail")
+            #     pass
             # print(12)
             try:
                 self.bb_match_result()
