@@ -2,13 +2,17 @@ from re import match as re_match
 import data_in_mapping
 import trim_check_webscr as tw
 import time
-
+'''
+    called in file read, need to add product param input from GUI.
+    this param will be called in id_match_result method. currently hard code CSS only for debug
+'''
 class LltPerDieClass:
     """
     Each die LLT datalog collect and analysis
     """
 
-    def __init__(self, name, mt_class, trim_class):
+    def __init__(self, name, mt_class, trim_class, product):
+        self.product = product
         self.flag = 0
         self.name = name
         self.mt_class = mt_class
@@ -216,10 +220,11 @@ class LltPerDieClass:
         self.id_dict = id_dict
         # print("id_dict", id_dict)
 
-    def id_match_result(self,add1,add2,add3):
+    def id_match_result(self, add1, add2, add3, product): # addi is used to get the id byte 7/8's value. but CSS and ESS don't support
         self.id_expect = data_in_mapping.id_mapping(
             self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
         for id_expect_key in self.id_expect:
+
             # print(id_expect_key)
             #print(self.id_expect[id_expect_key])
             # print(self.id_dict)
@@ -1925,7 +1930,7 @@ class LltPerDieClass:
                 pass
             # print(111)
             try:
-                self.id_match_result(self.add_112,self.add_172,self.add_FB)
+                self.id_match_result(self.add_112,self.add_172,self.add_FB, product="CSS")
             except:
                 pass
             # print(12)

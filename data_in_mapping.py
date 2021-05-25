@@ -1,3 +1,8 @@
+'''
+    golden id bytes values lookup table
+
+'''
+
 def id_mapping(mt_design, mt_die, llt_die, mt_file):
     id_expect_dict = {}
     #print(mt_die)

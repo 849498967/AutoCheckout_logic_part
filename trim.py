@@ -1,3 +1,8 @@
+'''
+    jason: to parse each line in the generated trim txt file. this function is called in file_read.py
+
+'''
+
 class TrimTable:
     def __init__(self, name):
         self.name = name
@@ -8,7 +13,7 @@ class TrimTable:
         self.trim_mask_dict = {}
         self.trim_shift_dict = {}
 
-    def trim_input(self, address, original_value, fix_or_trim, trim_value, trim_mask, trim_shift, mt_class):
+    def trim_input(self, address, original_value, fix_or_trim, trim_value, trim_mask, trim_shift, mt_class, product):
         for mt_die_ele in range(0, mt_class[0].mt_die):
             mt_die_ele_name = 'DIE ' + str(mt_die_ele) + '_' + address
             # print(mt_die_ele)
@@ -150,6 +155,8 @@ class TrimTable:
                         if ('0x0FE' in address) or ('0xFE' in address):
                             trim_value = '0x3C'
                             trim_mask = '0xFF'
+
+            # BICS5
             elif 'BiCs5_512G_2P' in mt_class[0].mt_design:                #add by Maurice for B5
                 # Apple 132BGA
                 if 'S5E' not in mt_class[0].file_name:
@@ -222,23 +229,57 @@ class TrimTable:
 
             elif 'BiCs5_1024G_2P' in mt_class[0].mt_design:                #add by Maurice for B5
                 # Apple 132BGA
-                if 'S5E' not in mt_class[0].file_name:
+
+                # Jason add more detailed settings for 1/2/4 die
+                # different product/pkg has different setting --76/7A/70; CE outgoing will also be different
+                # so add another product type input from GUI
+                # Currently I only modified to support CSS and Apple
+                # for other teams, will add more details later.
+                if 'S5E' not in mt_class[0].file_name: # not apple
                     # more and equal than 8D
                     if mt_class[0].mt_die >= 8:
-                        if '0x020' in address:
-                            trim_value = '0x60'
-                            trim_mask = '0xFF'
-                        if '0x015' in address:
-                            trim_value = '0x49'
-                            trim_mask = '0xFF'
+                        if product == "CSS": # if css
+                            if mt_class[0].mt_die == 16: # 16D 1T
+                                if '0x020' in address:
+                                    trim_value = '0x56'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x40'
+                                    trim_mask = '0xFF'
+                            elif mt_class[0].mt_die == 8: # 16D 1T
+                                if '0x020' in address:
+                                    trim_value = '0x66'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x49'
+                                    trim_mask = '0xFF'
+                        else: # all other products (not css and apple)
+                            if '0x020' in address:
+                                trim_value = '0x60'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x49'
+                                trim_mask = '0xFF'
+
                     # less than 8D
-                    else:
+                    elif product == "CSS":
+                        if mt_class[0].mt_die == 4:
+                            if '0x020' in address:
+                                trim_value = '0x76'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x48'
+                                trim_mask = '0xFF'
+
+                    else: # all other products (not css and apple) less than 8D
                         if '0x020' in address:
-                            trim_value = '0x70'
+                            trim_value = '0x76'
                             trim_mask = '0xFF'
                         if '0x015' in address:
                             trim_value = '0x48'
                             trim_mask = '0xFF'
+
+
                 # Apple 110BGA S5E
                 else:
                     # 10D

@@ -18,7 +18,7 @@ class ExcelPrint:
         excel_sub_file_name = file_read_class.folder_name + '_' + excel_sub_file_name
         self.filename = './excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
         self.filename_open = '/excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
-        self.wb = xlsxwriter_Workbook(self.filename)
+        self.wb = xlsxwriter_Workbook(self.filename, options={'default_format_properties': {'font_name': '微软雅黑',}})
         # style list
         self.style1 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1})
         self.style2 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1, 'underline': 1,
