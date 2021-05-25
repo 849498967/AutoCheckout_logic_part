@@ -1,0 +1,44 @@
+File name   : Rev_History.txt
+Description : To record code update history.
+Purpose     : MT checkout tool for apple MT/CST
+Author		: JiHyun Nam; Maurice
+
+Rev0502 B5
+	add product judgement for POR status check, 'F0' for ESSD (Trim generator up to Rev03, can support ESSD format)
+Rev0501 B5
+	more compatible, UID check function update for ECB product. (NNT script rev07 update the UID wl location)
+	ID byte check function update, byte8 auto calculation by odt trim
+Rev0500 B5
+	relax GB FW vt check limit because of str0 lower vt DIST
+Rev0410 B5
+	add dummy wl vt monitor
+Rev0409 B4.5/B5
+	compatible with MK2 product
+	fix 6th expected byte to "EC" in UID check, and keep DDR in LLT script ID check
+	fix date/month/year info mismatch in UID check for retest uinits
+Rev0408 B4.5/B5
+	change the ID check function to align with the ID byte7/8 revision&maturity check
+Rev0407 B4.5/B5
+	change the re to align the latest keyPara format in MTdatalog
+Rev0406 B4.5/B5
+	add error info print
+	add dummy wl vt check function for B5
+	fix DAC BUG in uid check, retest FH/CFH date mismatch will fix in next version
+Rev0405 B4.5/B5
+	ignore the error because B4.5 not support AR3_DAC/Key para Check
+	temp release for key para check
+Rev0404 B4.5/B5
+	fix error interrupt because of no CST log in CFH datalog
+	initial release for key para check
+Rev0403 B4.5/B5
+	fix UID AR3 DAC check fuction bug because of dut interleave print in MT datalog
+	Rev0402 B4.5/B5
+	update the ID 6th Byte value for B5
+	add CST TB TT collect function
+	fix trim check function(fix trim shfit issue)
+	add UID AR3 DAC check instead of Rev G check
+	support B5 1T product
+Rev0401 B4.5/B5
+	Fix B5 8D MT BB calculation offset issue
+Rev0400 B4.5/B5
+	Support B5
