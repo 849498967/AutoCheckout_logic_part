@@ -162,13 +162,58 @@ class TrimTable:
                 if 'S5E' not in mt_class[0].file_name:
                     # more and equal than 8D
                     if mt_class[0].mt_die >= 8:
-                        if '0x020' in address:
-                            trim_value = '0x60'
-                            trim_mask = '0xFF'
-                        if '0x015' in address:
-                            trim_value = '0x48'
-                            trim_mask = '0xFF'
-                    # less than 8D
+                        if product == "CSS":  # if css, need to seperate 8D and 16D
+                            if mt_class[0].mt_die == 16:  # 16D 512
+                                if '0x020' in address:
+                                    trim_value = '0x56'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x49'
+                                    trim_mask = '0xFF'
+                            elif mt_class[0].mt_die == 8:  # 16D 1T
+                                if '0x020' in address:
+                                    trim_value = '0x66'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x48'
+                                    trim_mask = '0xFF'
+                        elif product == "ECB":
+                            if mt_class[0].mt_die == 8:
+                                if '0x020' in address:
+                                    trim_value = '0x60'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x49'
+                                    trim_mask = '0xFF'
+                        else:
+                            # all other products (not css and apple and ECB)
+                            if '0x020' in address:
+                                trim_value = '0x60'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x49'
+                                trim_mask = '0xFF'
+
+                    # less than 8D and CSS/ECB both 1D/CE, difference is 70 / 76
+                    elif product == "CSS":
+                        if mt_class[0].mt_die == 4 or mt_class[0].mt_die == 2:
+                            if '0x020' in address:
+                                trim_value = '0x76'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x3E'
+                                trim_mask = '0xFF'
+
+                    elif product == "ECB":
+                        if mt_class[0].mt_die == 4 or mt_class[0].mt_die == 2:
+                            if '0x020' in address:
+                                trim_value = '0x70'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x3E'
+                                trim_mask = '0xFF'
+
+                    # less than 8D, not Apple, ECB and CSS
                     else:
                         if '0x020' in address:
                             trim_value = '0x70'
@@ -176,7 +221,8 @@ class TrimTable:
                         if '0x015' in address:
                             trim_value = '0x3E'
                             trim_mask = '0xFF'
-                # Apple 110BGA S5E
+
+                # Apple 110BGA S5E 512G
                 else:
                     # 10D
                     if mt_class[0].mt_die == 10:
@@ -231,29 +277,38 @@ class TrimTable:
                 # Apple 132BGA
 
                 # Jason add more detailed settings for 1/2/4 die
-                # different product/pkg has different setting --76/7A/70; CE outgoing will also be different
+                # different product/pkg has different setting --76/7A/70; CE outgoing will also be different(TBD)
                 # so add another product type input from GUI
-                # Currently I only modified to support CSS and Apple
+                # Currently only modified to support CSS and Apple
                 # for other teams, will add more details later.
                 if 'S5E' not in mt_class[0].file_name: # not apple
                     # more and equal than 8D
                     if mt_class[0].mt_die >= 8:
-                        if product == "CSS": # if css
-                            if mt_class[0].mt_die == 16: # 16D 1T
+                        if product == "CSS":  # if css, need to seperate 8D and 16D
+                            if mt_class[0].mt_die == 16:  # 16D 512
                                 if '0x020' in address:
                                     trim_value = '0x56'
                                     trim_mask = '0xFF'
                                 if '0x015' in address:
                                     trim_value = '0x40'
                                     trim_mask = '0xFF'
-                            elif mt_class[0].mt_die == 8: # 16D 1T
+                            elif mt_class[0].mt_die == 8:  # 16D 1T
                                 if '0x020' in address:
                                     trim_value = '0x66'
                                     trim_mask = '0xFF'
                                 if '0x015' in address:
                                     trim_value = '0x49'
                                     trim_mask = '0xFF'
-                        else: # all other products (not css and apple)
+                        elif product == "ECB":
+                            if mt_class[0].mt_die == 8:
+                                if '0x020' in address:
+                                    trim_value = '0x60'
+                                    trim_mask = '0xFF'
+                                if '0x015' in address:
+                                    trim_value = '0x49'
+                                    trim_mask = '0xFF'
+                        else:
+                            # all other products (not css and apple and ECB)
                             if '0x020' in address:
                                 trim_value = '0x60'
                                 trim_mask = '0xFF'
@@ -263,7 +318,7 @@ class TrimTable:
 
                     # less than 8D
                     elif product == "CSS":
-                        if mt_class[0].mt_die == 4:
+                        if mt_class[0].mt_die == 4 or mt_class[0].mt_die == 2:
                             if '0x020' in address:
                                 trim_value = '0x76'
                                 trim_mask = '0xFF'
@@ -271,14 +326,22 @@ class TrimTable:
                                 trim_value = '0x48'
                                 trim_mask = '0xFF'
 
+                    elif product == "ECB":
+                        if mt_class[0].mt_die == 4 or mt_class[0].mt_die == 2:
+                            if '0x020' in address:
+                                trim_value = '0x70'
+                                trim_mask = '0xFF'
+                            if '0x015' in address:
+                                trim_value = '0x48'
+                                trim_mask = '0xFF'
+
                     else: # all other products (not css and apple) less than 8D
                         if '0x020' in address:
-                            trim_value = '0x76'
+                            trim_value = '0x70'
                             trim_mask = '0xFF'
                         if '0x015' in address:
                             trim_value = '0x48'
                             trim_mask = '0xFF'
-
 
                 # Apple 110BGA S5E
                 else:
