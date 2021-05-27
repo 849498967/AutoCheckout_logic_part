@@ -31,6 +31,9 @@ class FileReadClass:
         self.product = None
         self.product_match = None
 
+        # jason add llt file name for mrph use
+        self.nnt_file_name = None
+
         for filename in os_listdir(path):
             file_in = open(path + filename, 'r', encoding='utf8', errors='ignore')
             file_loop = file_in
@@ -46,6 +49,7 @@ class FileReadClass:
                     break
                 if re_match(r'LLTSCRIPT START', file_line):
                     self.llt_file_match = True
+                    self.nnt_file_name = path + filename
                     nnt_contents = file_in.read()
                     # jason: match the product name once find the nnt datalog
                     self.product = re.findall(r'PRODUCT TYPE IS: (.*?)\n', nnt_contents)[0]
@@ -149,9 +153,11 @@ class FileReadClass:
                     llt_die_start_die_num = llt_die_start.group(1)
                     # print(self.product)
                     current_llt_die_class = llt_per_die.LltPerDieClass(llt_die_start_die_num,
-                                                                       self.mt_class_list, self.trim_class_list, self.product)
+                                                                       self.mt_class_list, self.trim_class_list, self.product, file_path=self.nnt_file_name)
                     self.llt_class_list.append(current_llt_die_class)
                     if llt_die_start_die_num in 'DIE 0':
+                        # check mrph only if die 0
+                        current_llt_die_class.check_mrph()
                         self.llt_class_die0 = current_llt_die_class
                 if current_llt_die_class:
                     current_llt_die_class.llt_line_input(llt_line)

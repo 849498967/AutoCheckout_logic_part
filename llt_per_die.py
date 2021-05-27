@@ -1,7 +1,10 @@
 from re import match as re_match
+import re
 import data_in_mapping
 import trim_check_webscr as tw
 import time
+import re
+from mrph_file_read import get_file_content
 '''
     called in file read, need to add product param input from GUI.
     this param will be called in id_match_result method. currently hard code CSS only for debug
@@ -11,8 +14,8 @@ class LltPerDieClass:
     Each die LLT datalog collect and analysis
     """
 
-    def __init__(self, name, mt_class, trim_class, product):
-        # jason
+    def __init__(self, name, mt_class, trim_class, product, file_path):
+        # jason: pre-define these 3 params in case trim is not run
         self.add_112 = '0x00'
         self.add_172 = '0x00'
         self.add_FB = '0x00'
@@ -159,6 +162,12 @@ class LltPerDieClass:
         self.key_para_check_acc = 1
         self.key_para_value_copy =[]
         self.key_para_mask_copy =[]
+
+        '''
+            mrph dict
+        '''
+        self.mrph_list = []
+        self.llt_file_path = file_path
         # data inout
         self.under_por = False
         self.por_status = None
@@ -1797,6 +1806,60 @@ class LltPerDieClass:
         #print(self.key_para_expect)
         #print(file_read_class.mt_class_list[0].key_para_dict)
 
+    def check_mrph(self):
+        try:
+            with open(self.llt_file_path) as f:
+                mrph_log = f.read()
+            mrph_page_pattern = re.compile(r"MORPHEOUS CHECK ON PLANE_(\d+) WL_(\d+) STR_(\d+) FOR"
+                                           r" DIE_(\d+) WITH PATTERN.*?Verify XDL data vs. pattern(.*?)END OF PAGE",
+                                           re.S)
+            page_result_list = re.findall(mrph_page_pattern, mrph_log)
+            # print(page_result_list)
+            page_result_dict = {}
+            for each_string in page_result_list:
+                # print(each_string)
+                page = "block " + each_string[0] + " wl " + each_string[1] + " string " + each_string[2]
+                page_result_dict[page] = []
+                no_error = re.findall(r"No error found", each_string[-1])
+                if no_error:  # no error
+                    page_result_dict[page].append(no_error[0])
+                    # print(no_error)
+                else:
+                    error = re.findall(r"(Column [0-9A-Z]+): (XDLData = [0-9A-Z]+), (Pattern File = [0-9A-Z]+)",
+                                       each_string[-1])
+                    if error:
+                        page_result_dict[page].append(error)
+                    # print(error)
+            # print(page_result_list)
+            version_pattern = re.compile(r"READ THE MRPH VERSION(.*?)END MRPH VERSION READ", re.S)
+            print("reading the MRPH version......(only plane 0 currently)")
+            data_list_blk_0 = re.findall(version_pattern, mrph_log)[0]
+            data_list_blk_1 = re.findall(version_pattern, mrph_log)[1]
+            byte_list_blk_0 = re.findall(r"Data = (.*?)h", data_list_blk_0)
+            byte_list_blk_1 = re.findall(r"Data = (.*?)h", data_list_blk_0)
+
+            track_version_pattern = re.compile(r"READ THE MT TRACK VERSION:(.*?)END MT TRACK VERSION READ", re.S)
+            mt_track_version_blk_0 = re.findall(track_version_pattern, mrph_log)[0]
+            track_byte_list_blk_0 = re.findall(r"Data = (.*?)h", mt_track_version_blk_0)
+
+            for eachbyte_idx in range(len(byte_list_blk_0)):
+                if byte_list_blk_0[eachbyte_idx] == '0':
+                    byte_list_blk_0[eachbyte_idx] = '00'
+            # print(byte_list_blk_0)
+            mrph_version = byte_list_blk_0[0] + byte_list_blk_0[2] + byte_list_blk_0[4] + byte_list_blk_0[6]
+
+            for eachbyte_idx in range(len(track_byte_list_blk_0)):
+                if track_byte_list_blk_0[eachbyte_idx] == '0':
+                    track_byte_list_blk_0[eachbyte_idx] = '00'
+            # print(track_byte_list_blk_0)
+            mt_track_version = track_byte_list_blk_0[0].upper() + track_byte_list_blk_0[1].upper()
+            print(mt_track_version)
+            self.mrph_list = [page_result_dict, mrph_version, mt_track_version]
+        except:
+            print("Skip MRPH check")
+            self.mrph_list = [None, None, None]
+        print(self.mrph_list)
+
     '''
         jaoson: decode the NNT datalog line by line
     '''
@@ -1880,7 +1943,6 @@ class LltPerDieClass:
             self.stamp_print(llt_line)
         if re_match(r'TESTEND UROMSTAMP', llt_line):
             self.under_stamp = False
-
         # VT DIST check
         if re_match(r'TESTSTART VT DIST CHECK', llt_line):
             self.under_vt_dist = True
@@ -1945,6 +2007,7 @@ class LltPerDieClass:
                     self.uid_collect(uid_llt_line.group(1), self.uid_addr_data)
         if re_match(r'TESTEND uid', llt_line):
             self.under_uid = False
+
         # Die end
         if re_match(r'.*TESTEND DIE.*', llt_line):
             current_die = re_match(r'.*TESTEND DIE (.*)', llt_line).group(1)
@@ -1991,4 +2054,9 @@ class LltPerDieClass:
             self.key_para_check(int(current_die))
             #except:
                 #pass
- 
+
+        '''
+            handle mrph seperately
+            
+        '''
+

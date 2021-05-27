@@ -381,7 +381,10 @@ class ExcelPrint:
                     self.trim_result_summary = 'FAIL'
                 if not llt_class_ele.trim_version_match:
                     self.trim_result_summary = 'CANNOT FIND TRIM VERSION'
+
             if self.summary_enable:
+                if self.trim_result_summary == 'CANNOT FIND TRIM VERSION':
+                    self.summary_ws.set_column(3, 3, width=40)
                 self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
                 self.summary_ws.write(self.summary_row, self.summary_col + 1, 'TRIM', self.style1)
                 self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
@@ -610,53 +613,7 @@ class ExcelPrint:
         stamp_ws.write(stamp_row, stamp_col + 11, 'EXPECT', self.style1)
         stamp_ws.write(stamp_row, stamp_col + 12, 'MATCH', self.style1)
         last_row_num = 0
-        try:
-            for llt_class_ele in self.file_read_class.llt_class_list:
-                for i, stamp_die in enumerate(llt_class_ele.stamp_excel_print_die):
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 0, stamp_die, self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 1,
-                                   llt_class_ele.stamp_excel_print_name[i], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 2,
-                                   llt_class_ele.stamp_excel_print_copy[i], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 3,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 0], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 4,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 1], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 5,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 2], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 6,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 3], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 7,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 4], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 8,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 5], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 9,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 6], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 10,
-                                   llt_class_ele.stamp_excel_print_data[8 * i + 7], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 11,
-                                   llt_class_ele.stamp_excel_print_expect[i], self.style1)
-                    stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 12,
-                                   llt_class_ele.stamp_excel_print_match[i], self.style1)
-                    last_row_num = i
-                stamp_row_temp += (last_row_num + 1)
-                if llt_class_ele.stamp_die_result != 1:
-                    self.stamp_result_summary = 'FAIL'
-            stamp_ws.conditional_format(stamp_row + 1, stamp_col + 12, stamp_row + stamp_row_temp, stamp_col + 12,
-                                        {'type': 'text', 'criteria': 'containing', 'value': 'Y',
-                                         'format': self.conditional_style_pass})
-            stamp_ws.conditional_format(stamp_row + 1, stamp_col + 12, stamp_row + stamp_row_temp, stamp_col + 12,
-                                        {'type': 'text', 'criteria': 'containing', 'value': 'N',
-                                         'format': self.conditional_style_fail})
-            if self.summary_enable:
-                self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-                self.summary_ws.write(self.summary_row, self.summary_col + 1, 'STAMP', self.style1)
-                self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                          'internal:STAMP!B2', self.style2)
-                self.summary_ws.write(self.summary_row, self.summary_col + 2, self.stamp_result_summary, self.style2)
-                self.summary_index += 1
-                self.summary_row += 1
-        except:
+        if not self.file_read_class.llt_class_list[0].stamp_excel_print_die:
             if self.summary_enable:
                 self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
                 self.summary_ws.write(self.summary_row, self.summary_col + 1, 'STAMP', self.style1)
@@ -664,7 +621,63 @@ class ExcelPrint:
                                           'internal:STAMP!B2', self.style2)
                 self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
                 self.summary_index += 1
-                self.summary_row += 1 
+                self.summary_row += 1
+        else:
+            try:
+                for llt_class_ele in self.file_read_class.llt_class_list:
+                    for i, stamp_die in enumerate(llt_class_ele.stamp_excel_print_die):
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 0, stamp_die, self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 1,
+                                       llt_class_ele.stamp_excel_print_name[i], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 2,
+                                       llt_class_ele.stamp_excel_print_copy[i], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 3,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 0], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 4,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 1], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 5,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 2], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 6,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 3], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 7,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 4], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 8,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 5], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 9,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 6], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 10,
+                                       llt_class_ele.stamp_excel_print_data[8 * i + 7], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 11,
+                                       llt_class_ele.stamp_excel_print_expect[i], self.style1)
+                        stamp_ws.write(stamp_row + stamp_row_temp + 1 + i, stamp_col + 12,
+                                       llt_class_ele.stamp_excel_print_match[i], self.style1)
+                        last_row_num = i
+                    stamp_row_temp += (last_row_num + 1)
+                    if llt_class_ele.stamp_die_result != 1:
+                        self.stamp_result_summary = 'FAIL'
+                stamp_ws.conditional_format(stamp_row + 1, stamp_col + 12, stamp_row + stamp_row_temp, stamp_col + 12,
+                                            {'type': 'text', 'criteria': 'containing', 'value': 'Y',
+                                             'format': self.conditional_style_pass})
+                stamp_ws.conditional_format(stamp_row + 1, stamp_col + 12, stamp_row + stamp_row_temp, stamp_col + 12,
+                                            {'type': 'text', 'criteria': 'containing', 'value': 'N',
+                                             'format': self.conditional_style_fail})
+                if self.summary_enable:
+                    self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 1, 'STAMP', self.style1)
+                    self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                              'internal:STAMP!B2', self.style2)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 2, self.stamp_result_summary, self.style2)
+                    self.summary_index += 1
+                    self.summary_row += 1
+            except:
+                if self.summary_enable:
+                    self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 1, 'STAMP', self.style1)
+                    self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                              'internal:STAMP!B2', self.style2)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
+                    self.summary_index += 1
+                    self.summary_row += 1
     def dist_vt_excel(self):
         dist_vt_excel_row = 3
         dist_vt_excel_col = 1

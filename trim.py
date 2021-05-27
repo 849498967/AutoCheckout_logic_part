@@ -1,5 +1,5 @@
 '''
-    jason: to parse each line in the generated trim txt file. this function is called in file_read.py
+    jason: to parse each line in the generated trim txt file. this function is called in mrph_file_read.py
 
 '''
 

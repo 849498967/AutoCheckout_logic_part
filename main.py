@@ -7,7 +7,11 @@ import traceback
 datalog_path = './Datalog/'
 # Make to EXE
 # "C:\Users\19981\AppData\Local\Programs\Python\Python38\python.exe" "C:\Users\19981\AppData\Local\Programs\Python\Python38\Scripts\pyinstaller.exe" C:\Users\19981\PycharmProjects\MT_single_package_checkout_JHN\main.py --windowed --onefile
-
+# jason: add trim gen in tha main function
+# try:
+#     trimtable_generation.run_trim_gen()
+# except Exception as trim_gen_error:
+#     msgbox("Trim Gen Error!")
 # file read and grab data
 # print(1)
 try:
