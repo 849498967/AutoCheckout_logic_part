@@ -13,11 +13,12 @@ class ExcelPrint:
             os.makedirs('./excel')
         # excel file name
         dt = datetime.now().isoformat()
+        product = self.file_read_class.llt_class_list[0].product
         excel_sub_file_name = \
             dt[2] + dt[3] + dt[5] + dt[6] + dt[8] + dt[9] + '_' + dt[11] + dt[12] + dt[14] + dt[15] + dt[17] + dt[18]
-        excel_sub_file_name = file_read_class.folder_name + '_' + excel_sub_file_name
-        self.filename = './excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
-        self.filename_open = '/excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
+        excel_sub_file_name = '_' + file_read_class.folder_name + '_' + excel_sub_file_name
+        self.filename = './excel/MT_check_summary_' + product + excel_sub_file_name + '.xlsx'
+        self.filename_open = '/excel/MT_check_summary_'+ product + excel_sub_file_name  + '.xlsx'
         self.wb = xlsxwriter_Workbook(self.filename, options={'default_format_properties': {'font_name': '微软雅黑', 'font_size': 9,}})
         # style list
         self.style1 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1})
@@ -61,7 +62,10 @@ class ExcelPrint:
         self.stamp_result_summary = ""
         # DIST VT
         self.dist_vt_result_summary = {}
-        
+        # mrph
+        self.mrph_summary = ""
+
+
     def summary(self, dut_match):
         self.summary_ws.merge_range(self.summary_row - 1, self.summary_col, self.summary_row - 1, self.summary_col + 2,
                                     'MT CHECKOUT SUMMARY', self.style1)
@@ -882,72 +886,108 @@ class ExcelPrint:
 
     # jason add mrph
     def mrph_excel(self):
-        print("Saving MRPH......")
-        worksheet_mrph = self.wb.add_worksheet("MRPH")
-        t_format = self.wb.add_format({
-            'bg_color': '#7DE496',
-        })
-        f_format = self.wb.add_format({
-            'bg_color': '#F48F8A',
-        })
-        worksheet_mrph.conditional_format('A1:C100000',
-                                          {'type': 'text',
-                                           'criteria': 'containing',
-                                           'value': 'No error',
-                                           'format': t_format
-                                           })
-        worksheet_mrph.conditional_format('A1:C100000',
-                                          {'type': 'text',
-                                           'criteria': 'containing',
-                                           'value': 'file',
-                                           'format': f_format
-                                           })
+        # print("Saving MRPH......")
+        if self.file_read_class.llt_class_list[0].product == "CSS":
+            worksheet_mrph = self.wb.add_worksheet("MRPH")
+            t_format = self.wb.add_format({
+                'bg_color': '#7DE496',
+            })
+            f_format = self.wb.add_format({
+                'bg_color': '#F48F8A',
+            })
+            worksheet_mrph.conditional_format('A1:C100000',
+                                              {'type': 'text',
+                                               'criteria': 'containing',
+                                               'value': 'No error',
+                                               'format': t_format
+                                               })
+            worksheet_mrph.conditional_format('A1:C100000',
+                                              {'type': 'text',
+                                               'criteria': 'containing',
+                                               'value': 'file',
+                                               'format': f_format
+                                               })
 
-        [mrph, mrph_ver, track_ver] = self.file_read_class.llt_class_list[0].mrph_list
+            worksheet_mrph.conditional_format('B1:G100000',
+                                              {'type': 'text',
+                                               'criteria': 'containing',
+                                               'value': 'Y',
+                                               'format': self.conditional_style_pass
+                                               })
+            worksheet_mrph.conditional_format('B1:G100000',
+                                              {'type': 'text',
+                                               'criteria': 'containing',
+                                               'value': 'N',
+                                               'format': self.conditional_style_fail
+                                               })
 
-        if mrph:
-            count = 1
-            worksheet_mrph.write(0, 0, "block-wl-string", self.style1)
-            worksheet_mrph.write(0, 1, "UR vs MRPH/page", self.style1)
-            worksheet_mrph.set_column("A:A", 30)
-            worksheet_mrph.set_column("B:B", 50)
-            worksheet_mrph.set_column("C:C", 30)
-            worksheet_mrph.set_column("D:D", 30)
-            for page in mrph:
-                if "No error found" in mrph[page]:
-                    worksheet_mrph.write(count, 0, page, self.style1)
-                    worksheet_mrph.write(count, 1, mrph[page][0], self.style1)
-                    count = count + 1
+            [mrph_page, rd_mrph_ver, rd_track_ver, mrph_ver_pf, tracker_ver_pf, exp_mrph_ver, exp_tracker_ver] = \
+                self.file_read_class.llt_class_list[0].mrph_list
+
+            if mrph_page:
+                count = 1
+                worksheet_mrph.write(0, 0, "block-wl-string", self.style1)
+                worksheet_mrph.write(0, 1, "UR vs MRPH/page", self.style1)
+                worksheet_mrph.set_column("A:A", 30)
+                worksheet_mrph.set_column("B:B", 50)
+                worksheet_mrph.set_column("C:C", 30)
+                worksheet_mrph.set_column("D:D", 30)
+                for page in mrph_page:
+                    if "No error found" in mrph_page[page]:
+                        worksheet_mrph.write(count, 0, page, self.style1)
+                        worksheet_mrph.write(count, 1, mrph_page[page][0], self.style1)
+                        count = count + 1
+                    else:
+                        for j in range(len(list(mrph_page[page][0]))):
+                            worksheet_mrph.write(count + j, 1, " ".join(list(mrph_page[page][0][j])), self.style1)
+                        count = count + len(list(mrph_page[page][0]))
+                        worksheet_mrph.merge_range("A" + str(count + 1 - len(list(mrph_page[page][0]))) + ":A" + str(count),
+                                                   page, self.style1)
+
+            if rd_mrph_ver:
+                worksheet_mrph.write(0, 2, "WL35 MRPH", self.style1)
+                worksheet_mrph.write(1, 2, rd_mrph_ver, self.style1)
+                worksheet_mrph.write(0, 3, "Expected MRPH", self.style1)
+                worksheet_mrph.write(1, 3, exp_mrph_ver, self.style1)
+                worksheet_mrph.write(0, 4, "PF", self.style1)
+                if mrph_ver_pf == "Y":
+                    worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
                 else:
-                    for j in range(len(list(mrph[page][0]))):
-                        worksheet_mrph.write(count + j, 1, " ".join(list(mrph[page][0][j])), self.style1)
-                    count = count + len(list(mrph[page][0]))
-                    worksheet_mrph.merge_range("A" + str(count + 1 - len(list(mrph[page][0]))) + ":A" + str(count),
-                                               page, self.style1)
+                    worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
+
+            if rd_track_ver:
+                worksheet_mrph.write(2, 2, "WL41 TRACKER", self.style1)
+                worksheet_mrph.write(3, 2, rd_track_ver, self.style1)
+                worksheet_mrph.write(2, 3, "Expected TRACKER", self.style1)
+                worksheet_mrph.write(3, 3, exp_tracker_ver.upper(), self.style1)
+                worksheet_mrph.write(2, 4, "PF", self.style1)
+                if tracker_ver_pf == "Y":
+                    worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
+                else:
+                    worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
+
+            if mrph_ver_pf == "Y" and tracker_ver_pf == "Y":
+                self.mrph_summary = "PASS"
+            else:
+                self.mrph_summary = "FAIL"
+
             self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
             self.summary_ws.write(self.summary_row, self.summary_col + 1, 'MRPH', self.style1)
             self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
                                       'internal:MRPH!B2', self.style2)
-            self.summary_ws.write(self.summary_row, self.summary_col + 2, self.uid_result_summary, self.style2)
+            self.summary_ws.write(self.summary_row, self.summary_col + 2, self.mrph_summary, self.style2)
             self.summary_index += 1
             self.summary_row += 1
         else:
             # print("MRPH is skipped!")
-            self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
-            self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                      'internal:MRPH!B2', self.style2)
-            self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
-            self.summary_index += 1
-            self.summary_row += 1
-
-        if mrph_ver:
-            worksheet_mrph.write(0, 2, "WL35 Version", self.style1)
-            worksheet_mrph.write(0, 3, mrph_ver, self.style1)
-
-        if track_ver:
-            worksheet_mrph.write(1, 2, "WL41 Track Version", self.style1)
-            worksheet_mrph.write(1, 3, track_ver, self.style1)
+            pass
+            # self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+            # self.summary_ws.write(self.summary_row, self.summary_col + 1, 'MRPH', self.style1)
+            # self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+            #                           'internal:MRPH!B2', self.style2)
+            # self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
+            # self.summary_index += 1
+            # self.summary_row += 1
 
     def close_excel(self):
         if self.summary_enable:

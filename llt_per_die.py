@@ -13,11 +13,16 @@ class LltPerDieClass:
     Each die LLT datalog collect and analysis
     """
 
-    def __init__(self, name, mt_class, trim_class, product, file_path):
+    def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8):
         # jason: pre-define these 3 params in case trim is not run
         self.add_112 = '0x00'
         self.add_172 = '0x00'
         self.add_FB = '0x00'
+
+        self.mrph_ver = mrph_ver
+        self.tracker_ver = tracker_ver
+        self.id7 = id7
+        self.id8 = id8
 
         self.product = product
         self.flag = 0
@@ -237,15 +242,12 @@ class LltPerDieClass:
         self.id_expect = data_in_mapping.id_mapping(
             self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
         for id_expect_key in self.id_expect:
-            if product == "CSS":
+            if product == "CSS" or product == "ESS":
                 if id_expect_key == 7:
-                    self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
+                    self.id_expect[id_expect_key] = self.id7
                     #print(self.id_expect[id_expect_key])
                 if id_expect_key == 8:
-                    self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
-                    if (int(add3,16)&int('0x02',16)) != 0:
-                        self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
-                                                     (int('0x00', 16) &int('0x08', 16)))
+                    self.id_expect[id_expect_key] = self.id8
                     #print(self.id_expect[id_expect_key])
                 if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
                     self.id_result[id_expect_key] = 'Y'
@@ -970,6 +972,7 @@ class LltPerDieClass:
                 temp_peak_voltage = dist_y_element
         if self.dist_vt_judge_case4_limit <= peak_voltage:
             self.dist_vt_judge_case4_result = 1
+
     def dist_vt_judge_case5(self, dist_x, dist_y):
         """
         self.dist_vt_judge_case4_result = 0
@@ -983,6 +986,7 @@ class LltPerDieClass:
                 temp_peak_voltage = dist_y_element
         if self.dist_vt_judge_case5_limit <= peak_voltage:
             self.dist_vt_judge_case5_result = 1
+
     def dist_vt_xy(self, dist_vt_x, temp_dist_vt_y_cal, dist_vt_y_cal, excel_title, label_title):
         if 'Excel_list' not in self.dist_vt_dict:
             self.dist_vt_dict['Excel_list'] = []
@@ -1831,7 +1835,7 @@ class LltPerDieClass:
                     # print(error)
             # print(page_result_list)
             version_pattern = re.compile(r"READ THE MRPH VERSION(.*?)END MRPH VERSION READ", re.S)
-            print("reading the MRPH version......(only plane 0 currently)")
+            # print("reading the MRPH version......(only plane 0 currently)")
             data_list_blk_0 = re.findall(version_pattern, mrph_log)[0]
             data_list_blk_1 = re.findall(version_pattern, mrph_log)[1]
             byte_list_blk_0 = re.findall(r"Data = (.*?)h", data_list_blk_0)
@@ -1846,18 +1850,27 @@ class LltPerDieClass:
                                                      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']:
                     byte_list_blk_0[eachbyte_idx] = '0' + byte_list_blk_0[eachbyte_idx]
             # print(byte_list_blk_0)
-            mrph_version = byte_list_blk_0[0] + byte_list_blk_0[2] + byte_list_blk_0[4] + byte_list_blk_0[6]
+            mrph_version = (byte_list_blk_0[0] + byte_list_blk_0[2] + byte_list_blk_0[4] + byte_list_blk_0[6]).upper()
 
             for eachbyte_idx in range(len(track_byte_list_blk_0)):
                 if track_byte_list_blk_0[eachbyte_idx] == '0':
                     track_byte_list_blk_0[eachbyte_idx] = '00'
             # print(track_byte_list_blk_0)
             mt_track_version = track_byte_list_blk_0[0].upper() + track_byte_list_blk_0[1].upper()
-            print(mt_track_version)
-            self.mrph_list = [page_result_dict, mrph_version, mt_track_version]
+            if mt_track_version == self.tracker_ver.upper():
+                tracker_ver_pf = "Y"
+            else:
+                tracker_ver_pf = "N"
+
+            if mrph_version == self.mrph_ver.upper():
+                mrph_version_pf = "Y"
+            else:
+                mrph_version_pf = "N"
+            # print(mt_track_version)
+            self.mrph_list = [page_result_dict, mrph_version, mt_track_version, mrph_version_pf, tracker_ver_pf, self.mrph_ver, self.tracker_ver]
         except:
-            print("Skip MRPH check")
-            self.mrph_list = [None, None, None]
+            # print("Skip MRPH check")
+            self.mrph_list = [None, None, None, None, None, None, None]
         # print(self.mrph_list)
 
     '''

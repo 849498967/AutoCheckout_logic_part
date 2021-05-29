@@ -30,6 +30,10 @@ class FileReadClass:
         # Jason: add product read
         self.product = None
         self.product_match = None
+        self.mrph_ver = ""
+        self.tracker_ver = ""
+        self.id_7 = ""
+        self.id_8 = ""
 
         # jason add llt file name for mrph use
         self.nnt_file_name = None
@@ -57,12 +61,29 @@ class FileReadClass:
                     file_in.close()
                     file_in = open(path + filename, 'r', encoding='utf8', errors='ignore')
                     self.llt_datalog_file_in = file_in
-
                     break
                 if re_match(r'TRIMTABLE START', file_line):
                     self.trim_file_match = True
                     self.trim_datalog_file_in = file_in
                     break
+
+                if re_match(r'MRPH VER: (.*?)\n', file_line):
+                    self.mrph_ver = re_match(r'MRPH VER: (.*?)\n', file_line).group(1)
+                    print("mrph read from config:", self.mrph_ver)
+
+                if re_match(r'MT TRACKER VER: (.*?)\n', file_line):
+                    self.tracker_ver = re_match(r'MT TRACKER VER: (.*?)\n', file_line).group(1)
+                    print("tracker ver read from config:", self.tracker_ver)
+
+                if re_match(r'ID7: (.*?)\n', file_line):
+                    self.id_7 = re_match(r'ID7: (.*?)\n', file_line).group(1)
+                    print("id7 read from config:", self.id_7)
+
+                if re_match(r'ID8: (.*?)\n', file_line):
+                    self.id_8 = re_match(r'ID8: (.*?)\n', file_line).group(1)
+                    print("id8 read from config:", self.id_8)
+
+
 
     def read_mt_datalog(self):
         # Skip if datalog is not exist and print error in excel
@@ -153,7 +174,11 @@ class FileReadClass:
                     llt_die_start_die_num = llt_die_start.group(1)
                     # print(self.product)
                     current_llt_die_class = llt_per_die.LltPerDieClass(llt_die_start_die_num,
-                                                                       self.mt_class_list, self.trim_class_list, self.product, file_path=self.nnt_file_name)
+                                                                       self.mt_class_list, self.trim_class_list,
+                                                                       self.product, file_path=self.nnt_file_name,
+                                                                       id7=self.id_7, id8=self.id_8,
+                                                                       mrph_ver=self.mrph_ver,
+                                                                       tracker_ver=self.tracker_ver)
                     self.llt_class_list.append(current_llt_die_class)
                     if llt_die_start_die_num in 'DIE 0':
                         # check mrph only if die 0
