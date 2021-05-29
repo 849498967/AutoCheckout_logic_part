@@ -4,7 +4,6 @@ import data_in_mapping
 import trim_check_webscr as tw
 import time
 import re
-from mrph_file_read import get_file_content
 '''
     called in file read, need to add product param input from GUI.
     this param will be called in id_match_result method. currently hard code CSS only for debug
@@ -1843,8 +1842,9 @@ class LltPerDieClass:
             track_byte_list_blk_0 = re.findall(r"Data = (.*?)h", mt_track_version_blk_0)
 
             for eachbyte_idx in range(len(byte_list_blk_0)):
-                if byte_list_blk_0[eachbyte_idx] == '0':
-                    byte_list_blk_0[eachbyte_idx] = '00'
+                if byte_list_blk_0[eachbyte_idx] in ['0', '1', '2', '3', '4', '5', '6', '7',
+                                                     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']:
+                    byte_list_blk_0[eachbyte_idx] = '0' + byte_list_blk_0[eachbyte_idx]
             # print(byte_list_blk_0)
             mrph_version = byte_list_blk_0[0] + byte_list_blk_0[2] + byte_list_blk_0[4] + byte_list_blk_0[6]
 
@@ -1858,7 +1858,7 @@ class LltPerDieClass:
         except:
             print("Skip MRPH check")
             self.mrph_list = [None, None, None]
-        print(self.mrph_list)
+        # print(self.mrph_list)
 
     '''
         jaoson: decode the NNT datalog line by line
@@ -2054,9 +2054,3 @@ class LltPerDieClass:
             self.key_para_check(int(current_die))
             #except:
                 #pass
-
-        '''
-            handle mrph seperately
-            
-        '''
-

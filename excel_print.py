@@ -18,7 +18,7 @@ class ExcelPrint:
         excel_sub_file_name = file_read_class.folder_name + '_' + excel_sub_file_name
         self.filename = './excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
         self.filename_open = '/excel/MT_check_summary_' + excel_sub_file_name + '.xlsx'
-        self.wb = xlsxwriter_Workbook(self.filename, options={'default_format_properties': {'font_name': '微软雅黑',}})
+        self.wb = xlsxwriter_Workbook(self.filename, options={'default_format_properties': {'font_name': '微软雅黑', 'font_size': 9,}})
         # style list
         self.style1 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1})
         self.style2 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1, 'underline': 1,
@@ -381,7 +381,6 @@ class ExcelPrint:
                     self.trim_result_summary = 'FAIL'
                 if not llt_class_ele.trim_version_match:
                     self.trim_result_summary = 'CANNOT FIND TRIM VERSION'
-
             if self.summary_enable:
                 if self.trim_result_summary == 'CANNOT FIND TRIM VERSION':
                     self.summary_ws.set_column(3, 3, width=40)
@@ -403,61 +402,61 @@ class ExcelPrint:
                 self.summary_index += 1
                 self.summary_row += 1
                 
-    def key_para_excel(self):
-            keypara_ws = self.wb.add_worksheet('KEY_PARA')
-            keypara_ws .freeze_panes(3, 1)
-            keypara_row = 1
-            keypara_col = 1
-            last_row_num = 0
-            self.keypara_result_summary = 'PASS'
-            for llt_class_ele in self.file_read_class.llt_class_list:
-                keypara_ws.merge_range(keypara_row, keypara_col, keypara_row, keypara_col + 7, llt_class_ele.name, self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 0, 'TB', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 1, 'ADDR', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 2, 'ROM', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 3, 'TRIM', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 4, 'MASK/SHIFT_DAC', self.style1)
-                keypara_ws.write(keypara_row+ 1, keypara_col + 5, 'REG', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 6, 'EXPECT', self.style1)
-                keypara_ws.write(keypara_row + 1, keypara_col + 7, 'MATCH', self.style1)
-                for i in range(len(llt_class_ele.key_para_expect)):  
-                    last_row_num = i
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 0, llt_class_ele.key_para_tb_copy[i], self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 1, llt_class_ele.key_para_addr_copy[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 2, llt_class_ele.key_para_rom_copy[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 3, llt_class_ele.key_para_value_copy[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 4, llt_class_ele.key_para_mask_copy[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 5, llt_class_ele.key_para_reg_copy[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 6, llt_class_ele.key_para_expect[i],
-                                 self.style1)
-                    keypara_ws.write(keypara_row + i + 2, keypara_col + 7, llt_class_ele.key_para_result[i],
-                                 self.style1)
-
-                keypara_ws.conditional_format(keypara_row + 2, keypara_col + 7, keypara_row + last_row_num + 2, keypara_col + 7,
-                                          {'type': 'text', 'criteria': 'containing', 'value': 'Y',
-                                           'format': self.conditional_style_pass})
-                keypara_ws.conditional_format(keypara_row + 2, keypara_col + 7, keypara_row + last_row_num + 2, keypara_col + 7,
-                                          {'type': 'text', 'criteria': 'containing', 'value': 'N',
-                                           'format': self.conditional_style_fail})
-                keypara_col += 8
-                if llt_class_ele.key_para_check_acc == 0:
-                    self.keypara_result_summary = 'FAIL'
-                if llt_class_ele.key_para_check_acc == 2:
-                    self.keypara_result_summary = 'None'
-                    
-            if self.summary_enable:
-                self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-                self.summary_ws.write(self.summary_row, self.summary_col + 1, 'KEY_PARA', self.style1)
-                self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                          'internal:KEY_PARA!B2', self.style2)
-                self.summary_ws.write(self.summary_row, self.summary_col + 2, self.keypara_result_summary, self.style2)
-                self.summary_index += 1
-                self.summary_row += 1
+    # def key_para_excel(self):
+    #         keypara_ws = self.wb.add_worksheet('KEY_PARA')
+    #         keypara_ws .freeze_panes(3, 1)
+    #         keypara_row = 1
+    #         keypara_col = 1
+    #         last_row_num = 0
+    #         self.keypara_result_summary = 'PASS'
+    #         for llt_class_ele in self.file_read_class.llt_class_list:
+    #             keypara_ws.merge_range(keypara_row, keypara_col, keypara_row, keypara_col + 7, llt_class_ele.name, self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 0, 'TB', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 1, 'ADDR', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 2, 'ROM', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 3, 'TRIM', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 4, 'MASK/SHIFT_DAC', self.style1)
+    #             keypara_ws.write(keypara_row+ 1, keypara_col + 5, 'REG', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 6, 'EXPECT', self.style1)
+    #             keypara_ws.write(keypara_row + 1, keypara_col + 7, 'MATCH', self.style1)
+    #             for i in range(len(llt_class_ele.key_para_expect)):
+    #                 last_row_num = i
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 0, llt_class_ele.key_para_tb_copy[i], self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 1, llt_class_ele.key_para_addr_copy[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 2, llt_class_ele.key_para_rom_copy[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 3, llt_class_ele.key_para_value_copy[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 4, llt_class_ele.key_para_mask_copy[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 5, llt_class_ele.key_para_reg_copy[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 6, llt_class_ele.key_para_expect[i],
+    #                              self.style1)
+    #                 keypara_ws.write(keypara_row + i + 2, keypara_col + 7, llt_class_ele.key_para_result[i],
+    #                              self.style1)
+    #
+    #             keypara_ws.conditional_format(keypara_row + 2, keypara_col + 7, keypara_row + last_row_num + 2, keypara_col + 7,
+    #                                       {'type': 'text', 'criteria': 'containing', 'value': 'Y',
+    #                                        'format': self.conditional_style_pass})
+    #             keypara_ws.conditional_format(keypara_row + 2, keypara_col + 7, keypara_row + last_row_num + 2, keypara_col + 7,
+    #                                       {'type': 'text', 'criteria': 'containing', 'value': 'N',
+    #                                        'format': self.conditional_style_fail})
+    #             keypara_col += 8
+    #             if llt_class_ele.key_para_check_acc == 0:
+    #                 self.keypara_result_summary = 'FAIL'
+    #             if llt_class_ele.key_para_check_acc == 2:
+    #                 self.keypara_result_summary = 'None'
+    #
+    #         if self.summary_enable:
+    #             self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+    #             self.summary_ws.write(self.summary_row, self.summary_col + 1, 'KEY_PARA', self.style1)
+    #             self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+    #                                       'internal:KEY_PARA!B2', self.style2)
+    #             self.summary_ws.write(self.summary_row, self.summary_col + 2, self.keypara_result_summary, self.style2)
+    #             self.summary_index += 1
+    #             self.summary_row += 1
                 
     def uid_excel(self):
         uid_ws = self.wb.add_worksheet('UID')
@@ -773,7 +772,7 @@ class ExcelPrint:
                     self.summary_index += 1
                     self.summary_row += 1
     def test_time_excel(self):
-        test_time_ws = self.wb.add_worksheet('TT')
+        test_time_ws = self.wb.add_worksheet('CFL_TT')
         test_time_ws.freeze_panes(1, 0)
         test_time_ws.set_column('A:A', 50)
         test_time_ws.set_column('B:I', 9.5)
@@ -813,9 +812,9 @@ class ExcelPrint:
                                         {'type': '3_color_scale', 'min_color': '#63BE7B', 'max_color': '#F8696B'})
         if self.summary_enable:
             self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'TT', self.style1)
+            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'CFL_TT', self.style1)
             self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                      'internal:TT!B2', self.style2)
+                                      'internal:CFL_TT!B2', self.style2)
             self.summary_ws.write(self.summary_row, self.summary_col + 2, 'Review', self.style2)
             self.summary_index += 1
             self.summary_row += 1
@@ -880,7 +879,76 @@ class ExcelPrint:
                 self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
                 self.summary_index += 1
                 self.summary_row += 1
-            
+
+    # jason add mrph
+    def mrph_excel(self):
+        print("Saving MRPH......")
+        worksheet_mrph = self.wb.add_worksheet("MRPH")
+        t_format = self.wb.add_format({
+            'bg_color': '#7DE496',
+        })
+        f_format = self.wb.add_format({
+            'bg_color': '#F48F8A',
+        })
+        worksheet_mrph.conditional_format('A1:C100000',
+                                          {'type': 'text',
+                                           'criteria': 'containing',
+                                           'value': 'No error',
+                                           'format': t_format
+                                           })
+        worksheet_mrph.conditional_format('A1:C100000',
+                                          {'type': 'text',
+                                           'criteria': 'containing',
+                                           'value': 'file',
+                                           'format': f_format
+                                           })
+
+        [mrph, mrph_ver, track_ver] = self.file_read_class.llt_class_list[0].mrph_list
+
+        if mrph:
+            count = 1
+            worksheet_mrph.write(0, 0, "block-wl-string", self.style1)
+            worksheet_mrph.write(0, 1, "UR vs MRPH/page", self.style1)
+            worksheet_mrph.set_column("A:A", 30)
+            worksheet_mrph.set_column("B:B", 50)
+            worksheet_mrph.set_column("C:C", 30)
+            worksheet_mrph.set_column("D:D", 30)
+            for page in mrph:
+                if "No error found" in mrph[page]:
+                    worksheet_mrph.write(count, 0, page, self.style1)
+                    worksheet_mrph.write(count, 1, mrph[page][0], self.style1)
+                    count = count + 1
+                else:
+                    for j in range(len(list(mrph[page][0]))):
+                        worksheet_mrph.write(count + j, 1, " ".join(list(mrph[page][0][j])), self.style1)
+                    count = count + len(list(mrph[page][0]))
+                    worksheet_mrph.merge_range("A" + str(count + 1 - len(list(mrph[page][0]))) + ":A" + str(count),
+                                               page, self.style1)
+            self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'MRPH', self.style1)
+            self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                      'internal:MRPH!B2', self.style2)
+            self.summary_ws.write(self.summary_row, self.summary_col + 2, self.uid_result_summary, self.style2)
+            self.summary_index += 1
+            self.summary_row += 1
+        else:
+            # print("MRPH is skipped!")
+            self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
+            self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                      'internal:MRPH!B2', self.style2)
+            self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
+            self.summary_index += 1
+            self.summary_row += 1
+
+        if mrph_ver:
+            worksheet_mrph.write(0, 2, "WL35 Version", self.style1)
+            worksheet_mrph.write(0, 3, mrph_ver, self.style1)
+
+        if track_ver:
+            worksheet_mrph.write(1, 2, "WL41 Track Version", self.style1)
+            worksheet_mrph.write(1, 3, track_ver, self.style1)
+
     def close_excel(self):
         if self.summary_enable:
             self.summary_ws.conditional_format(2, 3, self.summary_row - 1, 3,
@@ -909,12 +977,13 @@ class ExcelPrint:
                 self.bb_excel()
                 self.bc_excel()
                 self.trim_excel(self.file_read_class.trim_file_match)
-                self.key_para_excel()
+                # self.key_para_excel()
                 self.uid_excel()
                 self.stamp_excel()
                 self.dist_vt_excel()
                 self.test_time_excel()
                 self.test_time_excel1()
+                self.mrph_excel()
             else:
                 self.summary(self.file_read_class.llt_class_die0.lwxy_match_dut)
         # If MT file exist and LLT file miss
