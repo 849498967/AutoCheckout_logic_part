@@ -239,41 +239,46 @@ class LltPerDieClass:
         # print("id_dict", id_dict)
 
     def id_match_result(self, add1, add2, add3, product): # addi is used to get the id byte 7/8's value. but CSS and ESS don't support
-        self.id_expect = data_in_mapping.id_mapping(
-            self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
-        for id_expect_key in self.id_expect:
-            if product == "CSS" or product == "ESS":
-                if id_expect_key == 7:
-                    self.id_expect[id_expect_key] = self.id7
-                    #print(self.id_expect[id_expect_key])
-                if id_expect_key == 8:
-                    self.id_expect[id_expect_key] = self.id8
-                    #print(self.id_expect[id_expect_key])
-                if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
-                    self.id_result[id_expect_key] = 'Y'
+        try:
+            self.id_expect = data_in_mapping.id_mapping(
+                self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
+            for id_expect_key in self.id_expect:
+                if product == "CSS" or product == "ESS":
+                    if id_expect_key == 7:
+                        self.id_expect[id_expect_key] = self.id7
+                        #print(self.id_expect[id_expect_key])
+                    if id_expect_key == 8:
+                        self.id_expect[id_expect_key] = self.id8
+                        #print(self.id_expect[id_expect_key])
+                    if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
+                        self.id_result[id_expect_key] = 'Y'
+                    else:
+                        self.id_result[id_expect_key] = 'N'
+                        self.id_result_excel = 0
+                # print(id_expect_key)
+                #print(self.id_expect[id_expect_key])
+                # print(self.id_dict)
+                # print(self.id_dict[str(id_expect_key)])
+                # add---ID byte7/8 revision&maturity &ODT check----Maurice
                 else:
-                    self.id_result[id_expect_key] = 'N'
-                    self.id_result_excel = 0
-            # print(id_expect_key)
-            #print(self.id_expect[id_expect_key])
-            # print(self.id_dict)
-            # print(self.id_dict[str(id_expect_key)])
-            # add---ID byte7/8 revision&maturity &ODT check----Maurice
-            else:
-                if id_expect_key == 7:
-                    self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
-                    #print(self.id_expect[id_expect_key])
-                if id_expect_key == 8:
-                    self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
-                    if (int(add3,16)&int('0x02',16)) != 0:
-                        self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
-                                                     (int('0x00', 16) &int('0x08', 16)))
-                    #print(self.id_expect[id_expect_key])
-                if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
-                    self.id_result[id_expect_key] = 'Y'
-                else:
-                    self.id_result[id_expect_key] = 'N'
-                    self.id_result_excel = 0
+                    if id_expect_key == 7:
+                        self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
+                        #print(self.id_expect[id_expect_key])
+                    if id_expect_key == 8:
+                        self.id_expect[id_expect_key] = self.hex_upper(int('0x1E',16)+(int(add1,16)&int('0x60',16))*2)
+                        if (int(add3,16)&int('0x02',16)) != 0:
+                            self.id_expect[id_expect_key] = self.hex_upper((int(self.id_expect[id_expect_key],16)&(~int('0x08',16)))|\
+                                                         (int('0x00', 16) &int('0x08', 16)))
+                        #print(self.id_expect[id_expect_key])
+                    if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
+                        self.id_result[id_expect_key] = 'Y'
+                    else:
+                        self.id_result[id_expect_key] = 'N'
+                        self.id_result_excel = 0
+        except:
+            print("id pass")
+            pass
+
     def lwxy_input(self, lot, wafer, x_coordinator, y_coordinator, ds_ver, sort_date):
         """
         lot, wafer, X coordinator, Y coordinator data collection
@@ -292,7 +297,6 @@ class LltPerDieClass:
         self.ds_ver = ds_ver
         self.sort_date = sort_date
         self.lwxy = self.wafer + '_' + self.x_coor + '_' + self.y_coor + '_' + self.lot
-
 
     def lwxy_match_dut_result(self):
         """
@@ -1856,7 +1860,7 @@ class LltPerDieClass:
                 if track_byte_list_blk_0[eachbyte_idx] == '0':
                     track_byte_list_blk_0[eachbyte_idx] = '00'
             # print(track_byte_list_blk_0)
-            mt_track_version = track_byte_list_blk_0[0].upper() + track_byte_list_blk_0[1].upper()
+            mt_track_version = track_byte_list_blk_0[0].upper().zfill(2) + track_byte_list_blk_0[1].upper()
             if mt_track_version == self.tracker_ver.upper():
                 tracker_ver_pf = "Y"
             else:

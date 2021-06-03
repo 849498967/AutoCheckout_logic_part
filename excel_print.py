@@ -116,7 +116,6 @@ class ExcelPrint:
             self.summary_row += 1
 
     def id_excel_print(self):
-    
         id_wd = self.wb.add_worksheet('ID')
         id_wd.freeze_panes(3, 1)
         id_row = 1
@@ -165,6 +164,7 @@ class ExcelPrint:
                 self.summary_index += 1
                 self.summary_row += 1
         except:
+            print("id pass")
             if self.summary_enable:
                 self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
                 self.summary_ws.write(self.summary_row, self.summary_col + 1, 'ID', self.style1)
@@ -174,61 +174,63 @@ class ExcelPrint:
                 self.summary_index += 1
                 self.summary_row += 1
     def lwxy_excel(self):
-        lwxy_ws = self.wb.add_worksheet('LWXY')
-        lwxy_ws.freeze_panes(2, 3)
-        lwxy_row = 2
-        lwxy_col = 1
-        lwxy_ws.set_column('D:E', 9.5)
-        lwxy_ws.write(1, 1, '#', self.style1)
-        lwxy_ws.write(1, 2, 'Die info', self.style1)
-        lwxy_ws.write(1, 3, 'MT', self.style1)
-        lwxy_ws.write(1, 4, 'LLT', self.style1)
-        lwxy_ws.write(1, 5, 'MATCH', self.style1)
-        self.lwxy_result_summary = 'N/A'
-        for llt_class_ele in self.file_read_class.llt_class_list:
-            lwxy_ws.merge_range(lwxy_row, lwxy_col, lwxy_row + 3, lwxy_col, llt_class_ele.name, self.style1)
-            lwxy_ws.write(lwxy_row, lwxy_col + 1, 'Lot', self.style1)
-            lwxy_ws.write(lwxy_row, lwxy_col + 2, self.file_read_class.mt_class_list[0].lwxy[
-                llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_lot'], self.style1)
-            lwxy_ws.write(lwxy_row, lwxy_col + 3, llt_class_ele.lot, self.style1)
-            lwxy_ws.write(lwxy_row, lwxy_col + 4, llt_class_ele.lwxy_lot_match_result, self.style1)
-            lwxy_ws.write(lwxy_row + 1, lwxy_col + 1, 'Wafer', self.style1)
-            lwxy_ws.write(lwxy_row + 1, lwxy_col + 2, int(
-                self.file_read_class.mt_class_list[0].lwxy[
-                    llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_wafer']), self.style1)
-            lwxy_ws.write(lwxy_row + 1, lwxy_col + 3, int(llt_class_ele.wafer), self.style1)
-            lwxy_ws.write(lwxy_row + 1, lwxy_col + 4, llt_class_ele.lwxy_wafer_match_result, self.style1)
-            lwxy_ws.write(lwxy_row + 2, lwxy_col + 1, 'X', self.style1)
-            lwxy_ws.write(lwxy_row + 2, lwxy_col + 2, int(
-                self.file_read_class.mt_class_list[0].lwxy[
-                    llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_x']), self.style1)
-            lwxy_ws.write(lwxy_row + 2, lwxy_col + 3, int(llt_class_ele.x_coor), self.style1)
-            lwxy_ws.write(lwxy_row + 2, lwxy_col + 4, llt_class_ele.lwxy_x_match_result, self.style1)
-            lwxy_ws.write(lwxy_row + 3, lwxy_col + 1, 'Y', self.style1)
-            lwxy_ws.write(lwxy_row + 3, lwxy_col + 2, int(
-                self.file_read_class.mt_class_list[0].lwxy[
-                    llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_y']), self.style1)
-            lwxy_ws.write(lwxy_row + 3, lwxy_col + 3, int(llt_class_ele.y_coor), self.style1)
-            lwxy_ws.write(lwxy_row + 3, lwxy_col + 4, llt_class_ele.lwxy_y_match_result, self.style1)
-            if llt_class_ele.lwxy_match_result != 1:
-                self.lwxy_result_summary = 'FAIL'
-            else:
-                if 'FAIL' not in self.lwxy_result_summary:
-                    self.lwxy_result_summary = 'PASS'
-            lwxy_row += 4
-        lwxy_ws.conditional_format(2, 5, lwxy_row - 1, 5, {'type': 'text', 'criteria': 'containing', 'value': 'Y',
-                                                           'format': self.conditional_style_pass})
-        lwxy_ws.conditional_format(2, 5, lwxy_row - 1, 5, {'type': 'text', 'criteria': 'containing', 'value': 'N',
-                                                           'format': self.conditional_style_fail})
-        if self.summary_enable:
-            self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'Lot/Wafer/X/Y', self.style1)
-            self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                      'internal:lwxy!B2', self.style2)
-            self.summary_ws.write(self.summary_row, self.summary_col + 2, self.lwxy_result_summary, self.style2)
-            self.summary_index += 1
-            self.summary_row += 1
-
+        try:
+            lwxy_ws = self.wb.add_worksheet('LWXY')
+            lwxy_ws.freeze_panes(2, 3)
+            lwxy_row = 2
+            lwxy_col = 1
+            lwxy_ws.set_column('D:E', 9.5)
+            lwxy_ws.write(1, 1, '#', self.style1)
+            lwxy_ws.write(1, 2, 'Die info', self.style1)
+            lwxy_ws.write(1, 3, 'MT', self.style1)
+            lwxy_ws.write(1, 4, 'LLT', self.style1)
+            lwxy_ws.write(1, 5, 'MATCH', self.style1)
+            self.lwxy_result_summary = 'N/A'
+            for llt_class_ele in self.file_read_class.llt_class_list:
+                lwxy_ws.merge_range(lwxy_row, lwxy_col, lwxy_row + 3, lwxy_col, llt_class_ele.name, self.style1)
+                lwxy_ws.write(lwxy_row, lwxy_col + 1, 'Lot', self.style1)
+                lwxy_ws.write(lwxy_row, lwxy_col + 2, self.file_read_class.mt_class_list[0].lwxy[
+                    llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_lot'], self.style1)
+                lwxy_ws.write(lwxy_row, lwxy_col + 3, llt_class_ele.lot, self.style1)
+                lwxy_ws.write(lwxy_row, lwxy_col + 4, llt_class_ele.lwxy_lot_match_result, self.style1)
+                lwxy_ws.write(lwxy_row + 1, lwxy_col + 1, 'Wafer', self.style1)
+                lwxy_ws.write(lwxy_row + 1, lwxy_col + 2, int(
+                    self.file_read_class.mt_class_list[0].lwxy[
+                        llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_wafer']), self.style1)
+                lwxy_ws.write(lwxy_row + 1, lwxy_col + 3, int(llt_class_ele.wafer), self.style1)
+                lwxy_ws.write(lwxy_row + 1, lwxy_col + 4, llt_class_ele.lwxy_wafer_match_result, self.style1)
+                lwxy_ws.write(lwxy_row + 2, lwxy_col + 1, 'X', self.style1)
+                lwxy_ws.write(lwxy_row + 2, lwxy_col + 2, int(
+                    self.file_read_class.mt_class_list[0].lwxy[
+                        llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_x']), self.style1)
+                lwxy_ws.write(lwxy_row + 2, lwxy_col + 3, int(llt_class_ele.x_coor), self.style1)
+                lwxy_ws.write(lwxy_row + 2, lwxy_col + 4, llt_class_ele.lwxy_x_match_result, self.style1)
+                lwxy_ws.write(lwxy_row + 3, lwxy_col + 1, 'Y', self.style1)
+                lwxy_ws.write(lwxy_row + 3, lwxy_col + 2, int(
+                    self.file_read_class.mt_class_list[0].lwxy[
+                        llt_class_ele.dut_chip_lwxy[0] + '_' + llt_class_ele.dut_chip_lwxy[1] + '_y']), self.style1)
+                lwxy_ws.write(lwxy_row + 3, lwxy_col + 3, int(llt_class_ele.y_coor), self.style1)
+                lwxy_ws.write(lwxy_row + 3, lwxy_col + 4, llt_class_ele.lwxy_y_match_result, self.style1)
+                if llt_class_ele.lwxy_match_result != 1:
+                    self.lwxy_result_summary = 'FAIL'
+                else:
+                    if 'FAIL' not in self.lwxy_result_summary:
+                        self.lwxy_result_summary = 'PASS'
+                lwxy_row += 4
+            lwxy_ws.conditional_format(2, 5, lwxy_row - 1, 5, {'type': 'text', 'criteria': 'containing', 'value': 'Y',
+                                                               'format': self.conditional_style_pass})
+            lwxy_ws.conditional_format(2, 5, lwxy_row - 1, 5, {'type': 'text', 'criteria': 'containing', 'value': 'N',
+                                                               'format': self.conditional_style_fail})
+            if self.summary_enable:
+                self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+                self.summary_ws.write(self.summary_row, self.summary_col + 1, 'Lot/Wafer/X/Y', self.style1)
+                self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                          'internal:lwxy!B2', self.style2)
+                self.summary_ws.write(self.summary_row, self.summary_col + 2, self.lwxy_result_summary, self.style2)
+                self.summary_index += 1
+                self.summary_row += 1
+        except:
+            print("lwxy skipped")
     def bb_excel(self):
         bb_ws = self.wb.add_worksheet('BB')
         bb_ws.freeze_panes(3, 2)
@@ -463,137 +465,141 @@ class ExcelPrint:
     #             self.summary_row += 1
                 
     def uid_excel(self):
-        uid_ws = self.wb.add_worksheet('UID')
-        uid_ws.freeze_panes(3, 1)
-        uid_row = 1
-        uid_col = 1
-        uid_range = 17
-        self.uid_result_summary = 'PASS'
-        last_row_num = 0
-        try:
-            for llt_class_ele in self.file_read_class.llt_class_list:
-                uid_ws.merge_range(uid_row, uid_col, uid_row, uid_col + 8, llt_class_ele.name, self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 0, 'COPY', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 1, 'WL', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 2, 'STR', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 3, 'COL', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 4, 'SPEC', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 5, 'UID', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 6, 'EXPECT', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 7, 'DBAR', self.style1)
-                uid_ws.write(uid_row + 1, uid_col + 8, 'MATCH', self.style1)
-                uid_copy_row = 0
-                for i in range(uid_range):  # copy0
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 1, self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy0[0],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy0[1],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy0[2],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy0[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
-                                 llt_class_ele.uid_Data_bar_excel_print_copy0[i], self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy0[i],
-                                 self.style1)
-                    last_row_num = i
-                uid_copy_row = uid_range
-                for i in range(uid_range):  # copy1
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 2, self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy1[0],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy1[1],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy1[2],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy1[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
-                                 llt_class_ele.uid_Data_bar_excel_print_copy1[i], self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy1[i],
-                                 self.style1)
-                    last_row_num = i
-                uid_copy_row = uid_range * 2
-                for i in range(uid_range):  # copy2
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 3, self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy2[0],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy2[1],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy2[2],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy2[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
-                                 llt_class_ele.uid_Data_bar_excel_print_copy2[i], self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy2[i],
-                                 self.style1)
-                    last_row_num = i
-                uid_copy_row = uid_range * 3
-                for i in range(uid_range):  # copy3
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 4, self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy3[0],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy3[1],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy3[2],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy3[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
-                                 self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
-                                 llt_class_ele.uid_Data_bar_excel_print_copy3[i], self.style1)
-                    uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy3[i],
-                                 self.style1)
-                    last_row_num = i
-                uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
-                                          {'type': 'text', 'criteria': 'containing', 'value': 'Y',
-                                           'format': self.conditional_style_pass})
-                uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
-                                          {'type': 'text', 'criteria': 'containing', 'value': 'N',
-                                           'format': self.conditional_style_fail})
-                uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
-                                          {'type': 'text', 'criteria': 'containing', 'value': 'D-BAR',
-                                           'format': self.conditional_style_D_BAR})
-                uid_col += 9
-                if llt_class_ele.uid_result != 1:
-                    if llt_class_ele.uid_result == 0:
-                        self.uid_result_summary = 'FAIL'
-                    if llt_class_ele.uid_result == 2:
-                        if self.uid_result_summary != 'FAIL':
-                            self.uid_result_summary = 'D-BAR'
-            if self.summary_enable:
-                self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-                self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
-                self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                          'internal:uid!B2', self.style2)
-                self.summary_ws.write(self.summary_row, self.summary_col + 2, self.uid_result_summary, self.style2)
-                self.summary_index += 1
-                self.summary_row += 1
-        except:
-                self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-                self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
-                self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                          'internal:uid!B2', self.style2)
-                self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
-                self.summary_index += 1
-                self.summary_row += 1
+        # only create the shet for apple and ecb
+        if self.file_read_class.llt_class_list[0].product == "CSS" or self.file_read_class.llt_class_list[0].product == "ESS":
+            return 1
+        else:
+            uid_ws = self.wb.add_worksheet('UID')
+            uid_ws.freeze_panes(3, 1)
+            uid_row = 1
+            uid_col = 1
+            uid_range = 17
+            self.uid_result_summary = 'PASS'
+            last_row_num = 0
+            try:
+                for llt_class_ele in self.file_read_class.llt_class_list:
+                    uid_ws.merge_range(uid_row, uid_col, uid_row, uid_col + 8, llt_class_ele.name, self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 0, 'COPY', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 1, 'WL', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 2, 'STR', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 3, 'COL', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 4, 'SPEC', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 5, 'UID', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 6, 'EXPECT', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 7, 'DBAR', self.style1)
+                    uid_ws.write(uid_row + 1, uid_col + 8, 'MATCH', self.style1)
+                    uid_copy_row = 0
+                    for i in range(uid_range):  # copy0
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 1, self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy0[0],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy0[1],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy0[2],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy0[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
+                                     llt_class_ele.uid_Data_bar_excel_print_copy0[i], self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy0[i],
+                                     self.style1)
+                        last_row_num = i
+                    uid_copy_row = uid_range
+                    for i in range(uid_range):  # copy1
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 2, self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy1[0],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy1[1],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy1[2],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy1[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
+                                     llt_class_ele.uid_Data_bar_excel_print_copy1[i], self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy1[i],
+                                     self.style1)
+                        last_row_num = i
+                    uid_copy_row = uid_range * 2
+                    for i in range(uid_range):  # copy2
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 3, self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy2[0],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy2[1],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy2[2],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy2[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
+                                     llt_class_ele.uid_Data_bar_excel_print_copy2[i], self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy2[i],
+                                     self.style1)
+                        last_row_num = i
+                    uid_copy_row = uid_range * 3
+                    for i in range(uid_range):  # copy3
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 0, 4, self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 1, llt_class_ele.uid_addr_list_copy3[0],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 2, llt_class_ele.uid_addr_list_copy3[1],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 3, llt_class_ele.uid_addr_list_copy3[2],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 4, llt_class_ele.uid_SPEC_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 5, llt_class_ele.uid_Data_excel_print_copy3[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 6, llt_class_ele.uid_Expect_excel_print[i],
+                                     self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 7,
+                                     llt_class_ele.uid_Data_bar_excel_print_copy3[i], self.style1)
+                        uid_ws.write(uid_copy_row + uid_row + i + 2, uid_col + 8, llt_class_ele.uid_result_excel_copy3[i],
+                                     self.style1)
+                        last_row_num = i
+                    uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
+                                              {'type': 'text', 'criteria': 'containing', 'value': 'Y',
+                                               'format': self.conditional_style_pass})
+                    uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
+                                              {'type': 'text', 'criteria': 'containing', 'value': 'N',
+                                               'format': self.conditional_style_fail})
+                    uid_ws.conditional_format(uid_row + 2, uid_col + 8, uid_copy_row + uid_row + last_row_num + 2, uid_col + 8,
+                                              {'type': 'text', 'criteria': 'containing', 'value': 'D-BAR',
+                                               'format': self.conditional_style_D_BAR})
+                    uid_col += 9
+                    if llt_class_ele.uid_result != 1:
+                        if llt_class_ele.uid_result == 0:
+                            self.uid_result_summary = 'FAIL'
+                        if llt_class_ele.uid_result == 2:
+                            if self.uid_result_summary != 'FAIL':
+                                self.uid_result_summary = 'D-BAR'
+                if self.summary_enable:
+                    self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
+                    self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                              'internal:uid!B2', self.style2)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 2, self.uid_result_summary, self.style2)
+                    self.summary_index += 1
+                    self.summary_row += 1
+            except:
+                    self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 1, 'UID', self.style1)
+                    self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
+                                              'internal:uid!B2', self.style2)
+                    self.summary_ws.write(self.summary_row, self.summary_col + 2, 'None', self.style2)
+                    self.summary_index += 1
+                    self.summary_row += 1
     def stamp_excel(self):
         stamp_ws = self.wb.add_worksheet('STAMP')
         stamp_ws.freeze_panes(2, 1)
@@ -692,17 +698,17 @@ class ExcelPrint:
                     if excel_list_element not in self.dist_vt_result_summary:
                         self.dist_vt_result_summary[excel_list_element] = "PASS"
                     if excel_list_element == 'DUMMY WL VT':
-                        fig_plt = plt.figure(num=None, figsize=(90.8, 4.38), dpi=100, facecolor='w', edgecolor='k')
+                        fig_plt = plt.figure(num=None, figsize=(90.8, 4.38), dpi=100, facecolor='w', edgecolor='k',)
                     else:
-                        fig_plt = plt.figure(num=None, figsize=(11.35, 4.38), dpi=100, facecolor='w', edgecolor='k')
+                        fig_plt = plt.figure(num=None, figsize=(11.75, 4.38), dpi=100, facecolor='w', edgecolor='k')
                     if llt_class_ele.name in 'DIE 0':
                         self.wb_dict[excel_list_element] = self.wb.add_worksheet(excel_list_element)
                         self.wb_dict[excel_list_element].merge_range(dist_vt_excel_row - 2, dist_vt_excel_col,
-                                                                     dist_vt_excel_row - 2, dist_vt_excel_col + 16,
+                                                                     dist_vt_excel_row - 2, dist_vt_excel_col + 14,
                                                                      llt_class_ele.dist_vt_dict[
                                                                          excel_list_element + '_Title'], self.style1)
                         self.wb_dict[excel_list_element].merge_range(dist_vt_excel_row - 1, dist_vt_excel_col,
-                                                                     dist_vt_excel_row - 1, dist_vt_excel_col + 16,
+                                                                     dist_vt_excel_row - 1, dist_vt_excel_col + 14,
                                                                      llt_class_ele.dist_vt_dict[
                                                                     excel_list_element + '_Comment'], self.style1)
                     #print(excel_list_element)
@@ -742,6 +748,8 @@ class ExcelPrint:
                     plt.grid(True)
                     plt.yscale('log')
                     plt.legend()
+                    # plt.rcParams["axes.edgecolor"] = "black"
+                    # plt.rcParams["axes.linewidth"] = 1
                     # create figure folder if not exist
                     if not os.path.exists('./figure'):
                         os.makedirs('./figure')
@@ -888,43 +896,42 @@ class ExcelPrint:
     def mrph_excel(self):
         # print("Saving MRPH......")
         if self.file_read_class.llt_class_list[0].product == "CSS":
-            worksheet_mrph = self.wb.add_worksheet("MRPH")
-            t_format = self.wb.add_format({
-                'bg_color': '#7DE496',
-            })
-            f_format = self.wb.add_format({
-                'bg_color': '#F48F8A',
-            })
-            worksheet_mrph.conditional_format('A1:C100000',
-                                              {'type': 'text',
-                                               'criteria': 'containing',
-                                               'value': 'No error',
-                                               'format': t_format
-                                               })
-            worksheet_mrph.conditional_format('A1:C100000',
-                                              {'type': 'text',
-                                               'criteria': 'containing',
-                                               'value': 'file',
-                                               'format': f_format
-                                               })
-
-            worksheet_mrph.conditional_format('B1:G100000',
-                                              {'type': 'text',
-                                               'criteria': 'containing',
-                                               'value': 'Y',
-                                               'format': self.conditional_style_pass
-                                               })
-            worksheet_mrph.conditional_format('B1:G100000',
-                                              {'type': 'text',
-                                               'criteria': 'containing',
-                                               'value': 'N',
-                                               'format': self.conditional_style_fail
-                                               })
-
             [mrph_page, rd_mrph_ver, rd_track_ver, mrph_ver_pf, tracker_ver_pf, exp_mrph_ver, exp_tracker_ver] = \
                 self.file_read_class.llt_class_list[0].mrph_list
+            # print(mrph_page)
+            if mrph_page: # even css sometimes we will skip mrph, so need check this to decide if creating the sheet or not
+                worksheet_mrph = self.wb.add_worksheet("MRPH")
+                t_format = self.wb.add_format({
+                    'bg_color': '#86ff9b',
+                })
+                f_format = self.wb.add_format({
+                    'bg_color': '#F48F8A',
+                })
+                worksheet_mrph.conditional_format('A1:C100000',
+                                                  {'type': 'text',
+                                                   'criteria': 'containing',
+                                                   'value': 'No error',
+                                                   'format': t_format
+                                                   })
+                worksheet_mrph.conditional_format('A1:C100000',
+                                                  {'type': 'text',
+                                                   'criteria': 'containing',
+                                                   'value': 'file',
+                                                   'format': f_format
+                                                   })
 
-            if mrph_page:
+                worksheet_mrph.conditional_format('B1:G100000',
+                                                  {'type': 'text',
+                                                   'criteria': 'containing',
+                                                   'value': 'Y',
+                                                   'format': self.conditional_style_pass
+                                                   })
+                worksheet_mrph.conditional_format('B1:G100000',
+                                                  {'type': 'text',
+                                                   'criteria': 'containing',
+                                                   'value': 'N',
+                                                   'format': self.conditional_style_fail
+                                                   })
                 count = 1
                 worksheet_mrph.write(0, 0, "block-wl-string", self.style1)
                 worksheet_mrph.write(0, 1, "UR vs MRPH/page", self.style1)
@@ -933,38 +940,44 @@ class ExcelPrint:
                 worksheet_mrph.set_column("C:C", 30)
                 worksheet_mrph.set_column("D:D", 30)
                 for page in mrph_page:
-                    if "No error found" in mrph_page[page]:
-                        worksheet_mrph.write(count, 0, page, self.style1)
-                        worksheet_mrph.write(count, 1, mrph_page[page][0], self.style1)
-                        count = count + 1
+                    # in case you enable mrph check but somehow you haven't specify your mrph path correctly
+                    # so NNT cannot open the golden pattern -> it will print out
+                    if mrph_page[page]:
+                        if "No error found" in mrph_page[page]:
+                            worksheet_mrph.write(count, 0, page, self.style1)
+                            worksheet_mrph.write(count, 1, mrph_page[page][0], self.style1)
+                            count = count + 1
+                        else:
+                            for j in range(len(list(mrph_page[page][0]))):
+                                worksheet_mrph.write(count + j, 1, " ".join(list(mrph_page[page][0][j])), self.style1)
+                            count = count + len(list(mrph_page[page][0]))
+                            if len(list(mrph_page[page][0])) == 1:
+                                worksheet_mrph.write("A" + str(count + 1 - len(list(mrph_page[page][0]))), page, self.style1)
+                            else:
+                                worksheet_mrph.merge_range(
+                                    "A" + str(count + 1 - len(list(mrph_page[page][0]))) + ":A" + str(count), page, self.style1)
+
+                if rd_mrph_ver:
+                    worksheet_mrph.write(0, 2, "WL35 MRPH", self.style1)
+                    worksheet_mrph.write(1, 2, rd_mrph_ver, self.style1)
+                    worksheet_mrph.write(0, 3, "Expected MRPH", self.style1)
+                    worksheet_mrph.write(1, 3, exp_mrph_ver, self.style1)
+                    worksheet_mrph.write(0, 4, "PF", self.style1)
+                    if mrph_ver_pf == "Y":
+                        worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
                     else:
-                        for j in range(len(list(mrph_page[page][0]))):
-                            worksheet_mrph.write(count + j, 1, " ".join(list(mrph_page[page][0][j])), self.style1)
-                        count = count + len(list(mrph_page[page][0]))
-                        worksheet_mrph.merge_range("A" + str(count + 1 - len(list(mrph_page[page][0]))) + ":A" + str(count),
-                                                   page, self.style1)
+                        worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
 
-            if rd_mrph_ver:
-                worksheet_mrph.write(0, 2, "WL35 MRPH", self.style1)
-                worksheet_mrph.write(1, 2, rd_mrph_ver, self.style1)
-                worksheet_mrph.write(0, 3, "Expected MRPH", self.style1)
-                worksheet_mrph.write(1, 3, exp_mrph_ver, self.style1)
-                worksheet_mrph.write(0, 4, "PF", self.style1)
-                if mrph_ver_pf == "Y":
-                    worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
-                else:
-                    worksheet_mrph.write(1, 4, mrph_ver_pf, self.style1)
-
-            if rd_track_ver:
-                worksheet_mrph.write(2, 2, "WL41 TRACKER", self.style1)
-                worksheet_mrph.write(3, 2, rd_track_ver, self.style1)
-                worksheet_mrph.write(2, 3, "Expected TRACKER", self.style1)
-                worksheet_mrph.write(3, 3, exp_tracker_ver.upper(), self.style1)
-                worksheet_mrph.write(2, 4, "PF", self.style1)
-                if tracker_ver_pf == "Y":
-                    worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
-                else:
-                    worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
+                if rd_track_ver:
+                    worksheet_mrph.write(2, 2, "WL41 TRACKER", self.style1)
+                    worksheet_mrph.write(3, 2, rd_track_ver, self.style1)
+                    worksheet_mrph.write(2, 3, "Expected TRACKER", self.style1)
+                    worksheet_mrph.write(3, 3, exp_tracker_ver.upper(), self.style1)
+                    worksheet_mrph.write(2, 4, "PF", self.style1)
+                    if tracker_ver_pf == "Y":
+                        worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
+                    else:
+                        worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
 
             if mrph_ver_pf == "Y" and tracker_ver_pf == "Y":
                 self.mrph_summary = "PASS"
@@ -1009,6 +1022,7 @@ class ExcelPrint:
         # If MT/LLT datalog exist
         if self.file_read_class.mt_datalog_file_match & self.file_read_class.llt_file_match:
             # If DUT match with LLT and MT datalog
+            # jason: some times we only want to check trim, CFL is not run?
             if self.file_read_class.llt_class_die0.lwxy_match_dut:
                 self.summary(self.file_read_class.llt_class_die0.lwxy_match_dut)
                 self.por_excel_print()
@@ -1021,9 +1035,9 @@ class ExcelPrint:
                 self.uid_excel()
                 self.stamp_excel()
                 self.dist_vt_excel()
+                self.mrph_excel()
                 self.test_time_excel()
                 self.test_time_excel1()
-                self.mrph_excel()
             else:
                 self.summary(self.file_read_class.llt_class_die0.lwxy_match_dut)
         # If MT file exist and LLT file miss

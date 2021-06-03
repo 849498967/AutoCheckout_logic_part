@@ -194,7 +194,7 @@ class TrimTable:
                                 trim_value = '0x49'
                                 trim_mask = '0xFF'
 
-                    # less than 8D and CSS/ECB both 1D/CE, difference is 70 / 76
+                    # less than 8D and CSS/ESS/ECB both 1D/CE, difference is 70 / 76
                     elif product == "CSS":
                         if mt_class[0].mt_die == 4 or mt_class[0].mt_die == 2:
                             if '0x020' in address:

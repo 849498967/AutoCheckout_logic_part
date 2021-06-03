@@ -159,7 +159,7 @@ class FileReadClass:
                 # jason: add another param: product, hard code hese css for debugging
                 self.trim_class.trim_input('0x' + trim_data.group(1), '0x' + trim_data.group(2), trim_data.group(3),
                                            '0x' + trim_data.group(4), '0x' + trim_data.group(5), trim_data.group(6),
-                                           self.mt_class_list, "CSS")  # mt_class_list is info read from mt datalog
+                                           self.mt_class_list, self.product)  # mt_class_list is info read from mt datalog
 
     def read_llt_datalog(self):
         # Skip if datalog is not exist and print error in excel
