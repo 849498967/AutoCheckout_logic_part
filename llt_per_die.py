@@ -13,7 +13,7 @@ class LltPerDieClass:
     Each die LLT datalog collect and analysis
     """
 
-    def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8):
+    def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8, id6):
         # jason: pre-define these 3 params in case trim is not run
         self.add_112 = '0x00'
         self.add_172 = '0x00'
@@ -23,6 +23,7 @@ class LltPerDieClass:
         self.tracker_ver = tracker_ver
         self.id7 = id7
         self.id8 = id8
+        self.id6 = id6
 
         self.product = product
         self.flag = 0
@@ -249,6 +250,9 @@ class LltPerDieClass:
                         #print(self.id_expect[id_expect_key])
                     if id_expect_key == 8:
                         self.id_expect[id_expect_key] = self.id8
+
+                    if id_expect_key == 6:
+                        self.id_expect[id_expect_key] = self.id6
                         #print(self.id_expect[id_expect_key])
                     if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
                         self.id_result[id_expect_key] = 'Y'
@@ -351,6 +355,7 @@ class LltPerDieClass:
             elif 'BiCs5' in self.mt_class[0].mt_design:
                 # B4.5
                 bb_key_name = 'tb__901__REG_RD_bblks_out__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
+                # print(bb_key_name)
             else:
                 bb_key_name = 'tb__692__REG_RD_bblks_out__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
             mt_bb_cal_list = []
@@ -1007,9 +1012,10 @@ class LltPerDieClass:
         if excel_title + label_title + '_Y' not in self.dist_vt_dict:
             self.dist_vt_dict[excel_title + label_title + '_Y'] = []
         self.dist_vt_dict[excel_title + label_title + '_Y'].append(abs(int(temp_dist_vt_y_cal) - int(dist_vt_y_cal)))
-
+    # 3 KEYS in dist_vt_dict: Excel_list(excel title list), Label_list: list of excel title_label list. tit, Result/title list
     def dist_vt_result(self):
         for excel_list_element in self.dist_vt_dict['Excel_list']:
+            # print(excel_list_element)
             if (excel_list_element + '_Result') not in self.dist_vt_dict:
                 self.dist_vt_dict[excel_list_element + '_Result'] = 'PASS'
             for label_list_element in self.dist_vt_dict[excel_list_element + 'Label_list']:
@@ -1022,7 +1028,7 @@ class LltPerDieClass:
                         self.dist_vt_dict[excel_list_element + '_Result'] = 'FAIL'
                     self.dist_vt_dict[excel_list_element + '_Title'] = 'Userrom VT'
                     self.dist_vt_dict[
-                        excel_list_element + '_Comment'] = 'PASS condition : Less than' + str(
+                        excel_list_element + '_Comment'] = 'PASS condition : Less than ' + str(
                         self.dist_vt_judge_case2_limit3) + 'bits ignore between ' + str(
                         self.dist_vt_judge_case2_limit1) + 'V and ' + str(self.dist_vt_judge_case2_limit2) + 'V'
                 if excel_list_element in 'ROM VT':

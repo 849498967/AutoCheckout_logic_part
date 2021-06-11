@@ -76,6 +76,7 @@ class MTPerDieClass:
         self.lwxy[str(int(dut)) + '_' + str(int(chip)) + '_lot'] = lwxy_split[3]
         self.lwxy[str(int(dut)) + '_' + str(int(chip)) + '_lwxy'] = lwxy_combine
         self.mt_chip = int(chip)
+        # print(self.mt_chip)
 
     def bb_input(self, test_block_name, dut, chip, bb_addr):
         # 2nd back offset
@@ -184,6 +185,7 @@ class MTPerDieClass:
             lwxy_match2 = re_match(r'DUT(..) BANK(.*) CHIP(..)(.*)', mt_line)
             if lwxy_match2:
                 chip = int(int(lwxy_match2.group(3)) + ((int(lwxy_match2.group(2)) - 1) * self.max_chip_adjust))
+                # print(chip)
                 if chip < 10:
                     chip = '0' + str(chip)
                 self.lot_wafer_x_y(lwxy_match2.group(1), chip, lwxy_match2.group(4))

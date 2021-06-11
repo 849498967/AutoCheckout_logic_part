@@ -83,6 +83,10 @@ class FileReadClass:
                     self.id_8 = re_match(r'ID8: (.*?)\n', file_line).group(1)
                     print("id8 read from config:", self.id_8)
 
+                if re_match(r'ID6: (.*?)\n', file_line):
+                    self.id_6 = re_match(r'ID6: (.*?)\n', file_line).group(1)
+                    print("id6 read from config:", self.id_6)
+
 
 
     def read_mt_datalog(self):
@@ -178,7 +182,8 @@ class FileReadClass:
                                                                        self.product, file_path=self.nnt_file_name,
                                                                        id7=self.id_7, id8=self.id_8,
                                                                        mrph_ver=self.mrph_ver,
-                                                                       tracker_ver=self.tracker_ver)
+                                                                       tracker_ver=self.tracker_ver,
+                                                                       id6=self.id_6)
                     self.llt_class_list.append(current_llt_die_class)
                     if llt_die_start_die_num in 'DIE 0':
                         # check mrph only if die 0

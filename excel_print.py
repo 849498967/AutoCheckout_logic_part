@@ -978,12 +978,12 @@ class ExcelPrint:
                         worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
                     else:
                         worksheet_mrph.write(3, 4, tracker_ver_pf, self.style1)
-
-            if mrph_ver_pf == "Y" and tracker_ver_pf == "Y":
-                self.mrph_summary = "PASS"
+                if mrph_ver_pf == "Y" and tracker_ver_pf == "Y":
+                    self.mrph_summary = "PASS"
+                else:
+                    self.mrph_summary = "FAIL"
             else:
-                self.mrph_summary = "FAIL"
-
+                self.mrph_summary = "None"
             self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
             self.summary_ws.write(self.summary_row, self.summary_col + 1, 'MRPH', self.style1)
             self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
@@ -992,6 +992,7 @@ class ExcelPrint:
             self.summary_index += 1
             self.summary_row += 1
         else:
+            self.mrph_summary = "None"
             # print("MRPH is skipped!")
             pass
             # self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
@@ -1043,7 +1044,7 @@ class ExcelPrint:
         # If MT file exist and LLT file miss
         elif self.file_read_class.mt_datalog_file_match & ~self.file_read_class.llt_file_match:
             self.summary(2)
-        # If MT file miss and LLT file exist
+        # If MT file miss and LLT file exist -- there is a situation: we only run CST to check trim
         elif ~self.file_read_class.mt_datalog_file_match & self.file_read_class.llt_file_match:
             self.summary(3)
         # If Both MT and LLT file miss
