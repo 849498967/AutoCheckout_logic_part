@@ -719,6 +719,13 @@ class ExcelPrint:
                             plt.plot(llt_class_ele.dist_vt_dict[excel_list_element + Label_list_element + '_X'],
                                      llt_class_ele.dist_vt_dict[excel_list_element + Label_list_element + '_Y'],
                                      label=llt_class_ele.name + ' ' + Label_list_element)
+                            x = llt_class_ele.dist_vt_dict[excel_list_element + Label_list_element + '_X']
+                            y = llt_class_ele.dist_vt_dict[excel_list_element + Label_list_element + '_Y']
+                            ymax_x = np.argmax(y)
+                            # print(x[ymax_x], y[ymax_x])
+                            plt.scatter(x[ymax_x], 1, s=20, marker='o')
+                            plt.axvline(x=x[ymax_x], color='r', linestyle='--')
+                            plt.annotate(str(x[ymax_x]), xy=(x[ymax_x]+0.1, 1.2))
                             plt.xlabel('vt(V)', size='15')
                             plt.ylabel('Population', size='15')
                             plt.axis(xmin=0, xmax=6.8, ymin=1)
