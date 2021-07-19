@@ -4,6 +4,8 @@ from re import match as re_match
 class MTPerDieClass:
     def __init__(self, name, mt_program_name, mt_program_rev, mt_technology, mt_design, mt_die, max_chips_per_bank,
                  file_name):
+        self.BB_incoming = False
+        self.BC_incoming = False
         self.name = name
         self.mt_program_name = mt_program_name
         self.mt_program_rev = mt_program_rev
@@ -68,6 +70,7 @@ class MTPerDieClass:
             if chip < 10:
                 chip = '0' + str(chip)
         lwxy_split = str.split(lwxy)
+        # print(lwxy_split)
         lwxy_combine = lwxy_split[0] + '_' + lwxy_split[1] + '_' + lwxy_split[2] + '_' + lwxy_split[3]
         self.lwxy_list.append(lwxy_combine)
         self.lwxy[str(int(dut)) + '_' + str(int(chip)) + '_wafer'] = lwxy_split[0]
@@ -83,6 +86,7 @@ class MTPerDieClass:
         if self.bank2_start:
             chip = int(int(chip) + (self.mt_die / 2))
         bb_input_combine = test_block_name + '_' + str(dut) + '_' + str(chip)
+        # print(bb_input_combine)
         if bb_input_combine not in self.bb_dict:
             self.bb_dict[bb_input_combine] = []
         self.bb_dict[bb_input_combine].append(bb_addr)
@@ -91,6 +95,7 @@ class MTPerDieClass:
         if self.bank2_start:
             chip = int(int(chip) + (self.mt_die / 2))
         bc_input_combine = test_block_name + '_' + str(dut) + '_' + str(chip)
+        # print(bc_input_combine)
         if bc_input_combine not in self.bc_p0_dict:
             self.bc_p0_dict[bc_input_combine] = []
         if bc_input_combine not in self.bc_p1_dict:
@@ -161,6 +166,23 @@ class MTPerDieClass:
         if bank_1_end_match:
             self.bank2_start = True
 
+        #iNAND Swiftpro
+        # active_dut_match = re_match(r'Start Test: tb_cdtTest', mt_line)
+        # if active_dut_match:
+        #     self.active_dut_array = '1'
+        #     print(self.active_dut_array)
+        test_block_name_match = re_match(r'TestNum_.*', mt_line)
+        if test_block_name_match:
+            self.current_test_block_name = mt_line.replace("\n", "")
+            self.active_dut_array = '1'
+            # print(self.active_dut_array)
+            self.active_dut_tb_name(self.active_dut_array, self.current_test_block_name)
+
+        # More than 8D configure offset
+        bank_1_end_match = re_match(r'.*Section 0 Completed.*', mt_line)                 #????all products have this keyword, so need add product judge in below:
+        if bank_1_end_match and ('iNAND' in self.mt_design):                        
+            self.bank2_start = True
+
         # Lot, wafer, X, Y
         if re_match(r'tb__175__SLC_RD_urom_xy_loc__nvcc', self.current_test_block_name):
             lwxy_match = re_match(r'DUT(..) {2}CHIP(..)(.*)', mt_line)
@@ -189,6 +211,17 @@ class MTPerDieClass:
                 if chip < 10:
                     chip = '0' + str(chip)
                 self.lot_wafer_x_y(lwxy_match2.group(1), chip, lwxy_match2.group(4))
+        # SwiftPro BiCS4.5/5 format
+        if re_match(r'TestNum_120 XY_Location_Display__nvcc', self.current_test_block_name):
+            lwxy_match = re_match(r'DIE(.) LOT:(.*) W:(..) X:(..) Y:(..)', mt_line)
+            if lwxy_match:
+                wxy=lwxy_match.group(3)+' '+lwxy_match.group(4)+' '+lwxy_match.group(5)+' '+lwxy_match.group(2)
+                print(wxy)
+                self.lot_wafer_x_y('01', lwxy_match.group(1), wxy) #dut_chip_WXY
+                # print(chip)
+                # if chip < 10:
+                #     chip = '0' + str(chip)
+                # self.lot_wafer_x_y(lwxy_match2.group(1), chip, lwxy_match2.group(4))
 
         # bb list
         bb_match_not_happen = True
@@ -234,6 +267,27 @@ class MTPerDieClass:
                     self.bb_input(self.current_test_block_name, int(bb_list_match4.group(1)), int(chip3), 
                                   bb_list_match4.group(6))
             bb_match_not_happen = False
+        bb_list_matchCST = re_match(r'TestNum_900 Incoming_BB_Check__nvcc', mt_line)
+        if bb_list_matchCST:
+            self.BB_incoming = True
+        bb_list_matchCST2 = re_match(r'#TT.*', mt_line)
+        if bb_list_matchCST2:
+            self.BB_incoming = False
+        if self.BB_incoming:
+            # print(mt_line)
+            bb_list_match5 = re_match(r'GBB_DIE(.)_P(.): (.*) cnt = .*', mt_line)
+            if bb_list_match5:
+                BB_list=str.split(bb_list_match5.group(3))
+                # print(BB_list)
+                for i in range(0, len(BB_list)):
+                    # BB_list_i = int(BB_list[i])+int(bb_list_match5.group(1)*4096
+                    block_address_bank_adjust3 = int(BB_list[i], 16) + \
+                                                 int(int(bb_list_match5.group(1)) * self.block_offset)
+                    # print(BB_list[i])
+                    # print(hex(block_address_bank_adjust3))
+                    self.bb_input(self.current_test_block_name, '1', int(bb_list_match5.group(1)),
+                              hex(block_address_bank_adjust3))
+                bb_match_not_happen = False
 
         # gbb test, store TB name in list
         gbb_list_match = re_match(r'DUT.. CHIP.. PLANE.. CHANNEL. TB.* {3}ROMFUSE Initially Fail Bad Blk Count =.*',
@@ -247,6 +301,12 @@ class MTPerDieClass:
         test_end = re_match(r'TESTEND ([0-9a-zA-Z_]*).*TESTTIME (.*)s TOTALTIME.*', mt_line)
         if test_end:
             self.test_time(test_end.group(1), test_end.group(2))
+        test_end = re_match(r'Test Time \((.*)\)= (.*) \(s\)', mt_line)
+        if test_end:
+            # print(mt_line)
+            self.test_time(test_end.group(1), test_end.group(2))
+            # print(test_end.group(1))
+            # print(test_end.group(2))
         #add by Maurice-->cst test time collect
         if re_match(r'tb__(.*)__.*__.vcc',mt_line):
             self.cst_test_tb = mt_line
@@ -257,6 +317,18 @@ class MTPerDieClass:
             #print(self.cst_test_tb_tt)
                 self.test_time1(self.cst_test_tb,self.cst_test_tb_tt)
             #print(self.test_time_dict1)
+            except:
+                pass
+        if re_match(r'TestNum_(.*) .*__.vcc',mt_line):
+            self.cst_test_tb = mt_line
+            # print(self.cst_test_tb)
+        if re_match(r'#TT (.*)s',mt_line):
+            # print(mt_line)
+            try:
+                self.cst_test_tb_tt = re_match(r'#TT (.*)s',mt_line).group(1)
+                # print(self.cst_test_tb_tt)
+                self.test_time1(self.cst_test_tb,self.cst_test_tb_tt)
+                # print(self.test_time_dict1)
             except:
                 pass
         # bc list
@@ -276,6 +348,22 @@ class MTPerDieClass:
                 chip4 = '0' + str(chip4)
             self.bc_input(self.current_test_block_name, int(bc_list_match3.group(1)), int(chip4),
                           bc_list_match3.group(4), bc_list_match3.group(6))
+        bc_list_matchCST = re_match(r'TestNum_140 Incoming_BC_Check__nvcc', mt_line)
+        if bc_list_matchCST:
+            self.BC_incoming = True
+        bc_list_matchCST2 = re_match(r'#TT.*', mt_line)
+        if bc_list_matchCST2:
+            self.BC_incoming = False
+        if self.BC_incoming:
+            # print(mt_line)
+            bc_list_match4 = re_match(r'GBC_DIE(.)_P(.): (.*) cnt = .*', mt_line)
+            if bc_list_match4:
+                BC_list=str.split(bc_list_match4.group(3))
+                # print(BC_list)
+                for i in range(0, len(BC_list)):
+                    # print(BC_list[i])
+                    self.bc_input(self.current_test_block_name, '1', int(bc_list_match4.group(1)),int(bc_list_match4.group(2)),
+                              BC_list[i])
         
         # assign 0 for 0 bc DUT/CHIP/Plane
         bc_0_list_match = re_match(r'DUT([0-9]*) CHIP([0-9]*) PLANE([0-9]*) TB([0-9]*) BADCOLS.*', mt_line)

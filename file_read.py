@@ -51,6 +51,15 @@ class FileReadClass:
 
                     self.mt_datalog_file_in = file_in
                     break
+                if re_match(r'.*T5851 UFS Swift Pro PROGRAM.*', file_line):
+                    self.mt_datalog_file_match = True
+                    # file close and open again for BiCS4 to grap "max_chips_per_bank = 3" data
+                    file_in.close()
+                    file_in = open(path + filename, 'r', encoding='utf8', errors='ignore')
+                    # end
+
+                    self.mt_datalog_file_in = file_in
+                    break     
                 if re_match(r'LLTSCRIPT START', file_line):
                     self.llt_file_match = True
                     self.nnt_file_name = path + filename
@@ -83,9 +92,9 @@ class FileReadClass:
                     self.id_8 = re_match(r'ID8: (.*?)\n', file_line).group(1)
                     print("id8 read from config:", self.id_8)
 
-                if re_match(r'ID6: (.*?)\n', file_line):
-                    self.id_6 = re_match(r'ID6: (.*?)\n', file_line).group(1)
-                    print("id6 read from config:", self.id_6)
+                #if re_match(r'ID6: (.*?)\n', file_line):
+                    #self.id_6 = re_match(r'ID6: (.*?)\n', file_line).group(1)
+                    #print("id6 read from config:", self.id_6)
 
 
 
@@ -110,15 +119,48 @@ class FileReadClass:
                 max_chips_per_bank_match2 = re_match(r'MAX_CHIPS_PER_BANK = (.*)', mt_line)
                 if max_chips_per_bank_match2:
                     max_chips_per_bank = max_chips_per_bank_match2.group(1)
+                max_chips_per_bank_match3 = re_match(r'Die Count: (.*)', mt_line)
+                if max_chips_per_bank_match3:
+                    program_die = max_chips_per_bank_match3.group(1)
+                    max_chips_per_bank = str(int(max_chips_per_bank_match3.group(1))//2)
+                    program_tech = 'BICS4p5'
+                    # program_design = 'iNAND_BiCs4p5_512G_2P'
+                # print(max_chips_per_bank)
+                # print(program_die)
                 program_name_match = re_match(r'PROGRAMNAME (.*)', mt_line)
                 if program_name_match:
                     program_name = program_name_match.group(1)
+                program_name_match = re_match(r'ECOTS_SD_CST_FILE: /home/fsdiag/Whale/testfiles/(.*)', mt_line)
+                if program_name_match:
+                    program_name = program_name_match.group(1)    
+                # print(program_name)
                 program_rev_match = re_match(r'Product Name Changed to {3}= (.*)', mt_line)
                 if program_rev_match:
                     program_rev = program_rev_match.group(1)
+                program_rev_match = re_match(r'Product: (.*)', mt_line)                            #iNand use the CDT tp name to classify the Cap&Generation  iNAND_BiCs4p5_512G_2P
+                if program_rev_match:
+                    if program_rev_match.group(1).split('_')[0][2] == 'E' and program_rev_match.group(1).split('_')[0][-3] == 'I' and program_rev_match.group(1).split('_')[0][3:5] == '12':
+                        program_rev = 'iNAND_BiCs4p5_512G_2P'
+                        program_design = 'iNAND_BiCs4p5_512G_2P'
+                    elif program_rev_match.group(1).split('_')[0][2] == 'E' and program_rev_match.group(1).split('_')[0][-3] == 'I' and program_rev_match.group(1).split('_')[0][3:5] == '56':
+                        program_rev = 'iNAND_BiCs4p5_256G_2P'
+                        program_design = 'iNAND_BiCs4p5_256G_2P'
+                    else:
+                        pass
+                # if program_rev_match:
+                #     program_rev = program_rev_match.group(1)
+                #     program_design = program_rev_match.group(1)
+                    # print(program_design)
+                # print(program_rev)
                 program_tech_match = re_match(r'TECHNOLOGY (.*)', mt_line)
                 if program_tech_match:
                     program_tech = program_tech_match.group(1)
+                # program_tech_match = re_match(r'Die type: (.*)', mt_line)
+                # if program_tech_match:
+                #     program_tech = program_tech_match.group(1)
+                #     program_design = program_tech_match.group(1)
+                # # print(program_tech)
+                # print(program_design)
                 program_design_match = re_match(r'DESIGN (.*)', mt_line)
                 if program_design_match:
                     program_design = program_design_match.group(1)
@@ -128,7 +170,21 @@ class FileReadClass:
                 file_name_match = re_match(r'FILE NAME (.*)\.xml', mt_line)
                 if file_name_match:
                     file_name = file_name_match.group(1)
+                file_name_match = re_match(r'Load Recipe:/home/fsdiag/download/tspr7/src/../recipe/(.*)\.xml', mt_line)
+                if file_name_match:
+                    file_name = file_name_match.group(1)
+                # print(file_name)
                 if re_match(r'.*FLOWDESCRIPTIONSTART.*', mt_line):
+                    under_mt = True
+                    mt_file_number = self.mt_datalog_file_in.name + str(mt_datalog_number)
+                    self.mt_datalog_list.append(mt_file_number)
+                    current_mt_class = mt_per_die.MTPerDieClass(mt_file_number, program_name, program_rev,
+                                                                program_tech, program_design, program_die,
+                                                                max_chips_per_bank, file_name)
+                    self.mt_class_list.append(current_mt_class)
+                    mt_datalog_number += 1
+                # if re_match(r'Start Test: tb_cdtTest .*', mt_line):
+                if re_match(r'TestNum_30 Print_Datalog_LDPC__nvcc', mt_line):
                     under_mt = True
                     mt_file_number = self.mt_datalog_file_in.name + str(mt_datalog_number)
                     self.mt_datalog_list.append(mt_file_number)
@@ -139,16 +195,21 @@ class FileReadClass:
                     mt_datalog_number += 1
                 if re_match(r'.*Test End Action.*', mt_line):
                     under_mt = False
+                # if re_match(r'.*Test Time (tb_cdtTest).*', mt_line):
+                if re_match(r'END_OF_FLOW (S9)', mt_line):
+                    under_mt = False
                 if under_mt:
                     current_mt_class.mt_line_input(mt_line)
 
     # jason: read the parsed trim txt file
     def read_trim_table(self):
         for trim_line in self.trim_datalog_file_in:
-            revision_check_start = re_match(r'TRIMSTART (.*GB_.[.].*?_TO_.*[.].*)', trim_line)
+            # modify because B4 no B!
+            revision_check_start = re_match(r'TRIMSTART (.*G[B]{0,1}_.[.].*?_TO_.*[.].*)', trim_line)
             # print(revision_check_start.group(1))
             if revision_check_start:
                 trim_version_in_table = revision_check_start.group(1)
+                # print(trim_version_in_table)
                 self.trim_version_list.append(trim_version_in_table)
                 self.trim_class = trim.TrimTable(trim_version_in_table)  # trim.name
                 self.trim_class_list.append(self.trim_class)
@@ -158,9 +219,10 @@ class FileReadClass:
                                  r'Trim_mask\[.{2,3}]=(.*);\t'
                                  r'Trim_shift\[.{2,3}]=(.*);', trim_line)
             if trim_data:
+                # === debug ===
                 # print(trim_data.group(1), trim_data.group(2), trim_data.group(3), trim_data.group(4),
                 # trim_data.group(5), trim_data.group(6))
-                # jason: add another param: product, hard code hese css for debugging
+                # jason: add another param: product, hard code here css for debugging
                 self.trim_class.trim_input('0x' + trim_data.group(1), '0x' + trim_data.group(2), trim_data.group(3),
                                            '0x' + trim_data.group(4), '0x' + trim_data.group(5), trim_data.group(6),
                                            self.mt_class_list, self.product)  # mt_class_list is info read from mt datalog
@@ -182,8 +244,8 @@ class FileReadClass:
                                                                        self.product, file_path=self.nnt_file_name,
                                                                        id7=self.id_7, id8=self.id_8,
                                                                        mrph_ver=self.mrph_ver,
-                                                                       tracker_ver=self.tracker_ver,
-                                                                       id6=self.id_6)
+                                                                       tracker_ver=self.tracker_ver)
+                                                                       #id6=self.id_6)
                     self.llt_class_list.append(current_llt_die_class)
                     if llt_die_start_die_num in 'DIE 0':
                         # check mrph only if die 0
