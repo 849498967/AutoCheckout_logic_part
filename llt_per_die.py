@@ -13,7 +13,8 @@ class LltPerDieClass:
     Each die LLT datalog collect and analysis
     """
 
-    def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8, id6):
+    #def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8, id6):
+    def __init__(self, name, mt_class, trim_class, product, file_path, mrph_ver, tracker_ver, id7, id8):
         # jason: pre-define these 3 params in case trim is not run
         self.add_112 = '0x00'
         self.add_172 = '0x00'
@@ -23,7 +24,7 @@ class LltPerDieClass:
         self.tracker_ver = tracker_ver
         self.id7 = id7
         self.id8 = id8
-        self.id6 = id6
+        #self.id6 = id6
 
         self.product = product
         self.flag = 0
@@ -244,15 +245,18 @@ class LltPerDieClass:
             self.id_expect = data_in_mapping.id_mapping(
                 self.mt_class[0].mt_design, self.mt_class[0].mt_die, self.name,self.mt_class[0].file_name)
             for id_expect_key in self.id_expect:
-                if product == "CSS" or product == "ESS":
+                if product == "CSS" or product == "ESS" or product == "INAND":
+                    # print(1111111111111)
+                    # print(product)
                     if id_expect_key == 7:
                         self.id_expect[id_expect_key] = self.id7
-                        #print(self.id_expect[id_expect_key])
+                        # print(1111111111111)
+                        # print(self.id_expect[id_expect_key])
                     if id_expect_key == 8:
                         self.id_expect[id_expect_key] = self.id8
 
-                    if id_expect_key == 6:
-                        self.id_expect[id_expect_key] = self.id6
+                    #if id_expect_key == 6:
+                        #self.id_expect[id_expect_key] = self.id6
                         #print(self.id_expect[id_expect_key])
                     if int(self.id_expect[id_expect_key], 16) == int(self.id_dict[str(id_expect_key)], 16):
                         self.id_result[id_expect_key] = 'Y'
@@ -265,6 +269,8 @@ class LltPerDieClass:
                 # print(self.id_dict[str(id_expect_key)])
                 # add---ID byte7/8 revision&maturity &ODT check----Maurice
                 else:
+                    # print(222222222222)
+                    # print(product)
                     if id_expect_key == 7:
                         self.id_expect[id_expect_key] = self.hex_upper(int('0x08',16)+(int(add2,16)&int('0x70',16))//16)
                         #print(self.id_expect[id_expect_key])
@@ -349,9 +355,13 @@ class LltPerDieClass:
         :return: NA
         """
         if self.lwxy_match_dut == 1:
-            if 'BiCs4p5' in self.mt_class[0].mt_design:
+            if 'iNAND' in self.mt_class[0].mt_design:
+                bb_key_name = 'TestNum_900 Incoming_BB_Check__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
+                # print(bb_key_name)
+            elif 'BiCs4p5' in self.mt_class[0].mt_design:
                 # B4.5
                 bb_key_name = 'tb__901__REG_RD_bblks_out__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
+                # print(bb_key_name)
             elif 'BiCs5' in self.mt_class[0].mt_design:
                 # B4.5
                 bb_key_name = 'tb__901__REG_RD_bblks_out__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
@@ -368,10 +378,15 @@ class LltPerDieClass:
                 # print(self.mt_class[0].mt_design)
                 for mt_bb in self.mt_class[0].bb_dict[bb_key_name]:
                     mt_bb_cal_list.append(int(mt_bb, 16) - 2048 * (int(self.dut_chip_lwxy[1]) - 1))
+            elif 'iNAND' in self.mt_class[0].mt_design:
+                for mt_bb in self.mt_class[0].bb_dict[bb_key_name]:
+                    mt_bb_cal_list.append(int(mt_bb, 16) - 4096 * int(self.dut_chip_lwxy[1]))
             elif 'BiCs4p5_256Gb_2P' in self.mt_class[0].mt_design or 'BiCs4p5_256G_2P' in self.mt_class[0].mt_design:
                 # print(self.mt_class[0].mt_design)
+                # print(1111111111)
                 for mt_bb in self.mt_class[0].bb_dict[bb_key_name]:
                     # print(mt_bb, self.dut_chip_lwxy[1])
+                    # print(2222222222222)
                     mt_bb_cal_list.append(int(mt_bb, 16) - 2048 * (int(self.dut_chip_lwxy[1]) - 1))
             elif 'BiCs5_512Gb_2P' in self.mt_class[0].mt_design or 'BiCs5_512G_2P' in self.mt_class[0].mt_design:
                 # print(self.mt_class[0].mt_design)
@@ -508,6 +523,9 @@ class LltPerDieClass:
                     bc_key_name = 'tb__142__REG_RD_bcols__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
                 if bc_key_name not in self.mt_class[0].bc_p0_dict:
                     bc_key_name = 'tb__141__REG_RD_bcols__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
+                if bc_key_name not in self.mt_class[0].bc_p0_dict:
+                    bc_key_name = 'TestNum_140 Incoming_BC_Check__nvcc_' + self.dut_chip_lwxy[0] + '_' + self.dut_chip_lwxy[1]
+                # print(bc_key_name)
             elif 'BiCs5' in self.mt_class[0].mt_design:
                 # B5
                 # print(self.mt_class[0].bc_p0_dict)
@@ -908,6 +926,8 @@ class LltPerDieClass:
         if ignore_bits_low <= self.dist_vt_judge_case1_limit5:
             if ignore_bits_high <= self.dist_vt_judge_case1_limit5:
                 self.dist_vt_judge_case1_result = 1
+            else:
+                self.dist_vt_judge_case1_result = 0
         # print("result", self.dist_vt_judge_case1_result)
 
     # userrom VT
@@ -924,6 +944,8 @@ class LltPerDieClass:
                 ignore_bits += dist_y[i]
         if ignore_bits <= self.dist_vt_judge_case2_limit3:
             self.dist_vt_judge_case2_result = 1
+        else:
+            self.dist_vt_judge_case2_result = 0
 
     # flash write good block VT
     def dist_vt_judge_case3(self, dist_x, dist_y):
@@ -961,6 +983,8 @@ class LltPerDieClass:
                 temp_peak_voltage = dist_y_element
         if self.dist_vt_judge_case3_limit1 <= peak_voltage <= self.dist_vt_judge_case3_limit2:
             self.dist_vt_judge_case3_result = 1
+        else:
+            self.dist_vt_judge_case3_result = 0
 
     # flash write bad block VT
     def dist_vt_judge_case4(self, dist_x, dist_y):
@@ -981,6 +1005,8 @@ class LltPerDieClass:
                 temp_peak_voltage = dist_y_element
         if self.dist_vt_judge_case4_limit <= peak_voltage:
             self.dist_vt_judge_case4_result = 1
+        else:
+            self.dist_vt_judge_case4_result = 0
 
     def dist_vt_judge_case5(self, dist_x, dist_y):
         """
@@ -995,6 +1021,8 @@ class LltPerDieClass:
                 temp_peak_voltage = dist_y_element
         if self.dist_vt_judge_case5_limit <= peak_voltage:
             self.dist_vt_judge_case5_result = 1
+        else:
+            self.dist_vt_judge_case5_result = 0
 
     def dist_vt_xy(self, dist_vt_x, temp_dist_vt_y_cal, dist_vt_y_cal, excel_title, label_title):
         if 'Excel_list' not in self.dist_vt_dict:
@@ -1091,6 +1119,8 @@ class LltPerDieClass:
         self.trim_version_uid = trim_version_name
         # trim version loop
         for trim_class_element in trim_class:
+            # print(trim_class_element.name)
+            # print(trim_version_name)
             # trim version exist
             if trim_class_element.name in trim_version_name:
                 self.trim_version_match = True
@@ -1122,6 +1152,7 @@ class LltPerDieClass:
                             # Append to list for excel
                             self.trim_excel_romfuse.append(self.hex_upper(int(self.trim_romfuse_value_list[inc], 16)))
                             self.trim_excel_userrom.append(self.hex_upper(int(self.trim_userrom_value_list[inc], 16)))
+                            # no original value for only shift kind of param
                             self.trim_excel_original.append('')
                             self.trim_excel_setparmmask_value.append('')
                             self.trim_excel_mask.append('')
@@ -1248,7 +1279,8 @@ class LltPerDieClass:
                             # print(self.hex_upper(inc + 16), int(shift_result, 16), romfuse_mask)
                             """
                             # setparm cal
-                            #print(trim_addr,int(self.trim_userrom_value_list[inc], 16),int(trim_class_element.trim_shift_dict[trim_addr], 10))
+                            # print("trim type is 20")
+                            # print(trim_addr,int(self.trim_userrom_value_list[inc], 16),int(trim_class_element.trim_shift_dict[trim_addr], 10))
                             setparmmask_result = (int(self.trim_userrom_value_list[inc], 16) &
                                                   (~int(trim_class_element.trim_mask_dict[trim_addr], 16))) | \
                                                  (int(trim_class_element.trim_value_dict[trim_addr], 16) &
@@ -1682,13 +1714,14 @@ class LltPerDieClass:
                             self.trim_excel_setparmmask_value.append('')
                             self.trim_excel_mask.append('')
                             self.trim_excel_shift.append(self.hex_upper(shift_value))
-                        # setparmmask
+                        # only setparmmask, no shift
                         else:
+                            # print(inc, trim_addr)
                             setparmmask_result = (int(self.trim_userrom_value_list[inc], 16) &
                                                   (~int(trim_class_element.trim_mask_dict[trim_addr], 16))) | \
                                                  (int(trim_class_element.trim_value_dict[trim_addr], 16) &
                                                   int(trim_class_element.trim_mask_dict[trim_addr], 16))
-                            #print(trim_addr,setparmmask_result)
+                            # print(trim_addr,setparmmask_result)
                             self.trim_cal.append(setparmmask_result)
                             # print(trim_class_element.original_value_dict[trim_addr])
                             # print(self.trim_romfuse_value_list)
@@ -1906,7 +1939,7 @@ class LltPerDieClass:
         id_in = re_match(r'.*([1-9]).. Data = (0x.{1,2})', llt_line)
         if id_in:
             self.id_dict[id_in.group(1)] = id_in.group(2)
-        id_read_end = re_match(r'TESTEND XY READ', llt_line)
+        id_read_end = re_match(r'TESTEND ID READ', llt_line)
         if self.under_id_read and id_read_end:
             self.id_input(self.id_dict)
             self.under_id_read = False
@@ -1990,7 +2023,7 @@ class LltPerDieClass:
         if re_match(r'TESTSTART TRIM', llt_line):
             self.under_trim = True
         if self.under_trim:
-            trim_version = re_match(r'(.*GB_.[.].*?_TO_.*[.].*).*', llt_line)
+            trim_version = re_match(r'(.*G[B]{0,1}_.[.].*?_TO_.*[.].*).*', llt_line)
             if trim_version:
                 self.trim_version_name = trim_version.group(1)
                 #print(self.trim_version_name)
@@ -2011,8 +2044,10 @@ class LltPerDieClass:
                     self.add_FB = trim_romfuse_read.group(2)
                     #print(trim_romfuse_read.group(2))
         if re_match(r'TESTEND TRIM', llt_line):
+            print("debug  trim=======")
             self.under_trim = False
             if self.trim_version_name:
+                print(self.trim_version_name)
                 self.trim_check(self.trim_version_name, self.trim_class)
 
         # UID
