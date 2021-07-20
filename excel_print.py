@@ -19,6 +19,7 @@ class ExcelPrint:
         excel_sub_file_name = '_' + file_read_class.folder_name + '_' + excel_sub_file_name
         self.filename = './excel/MT_check_summary_' + product + excel_sub_file_name + '.xlsx'
         self.filename_open = '/excel/MT_check_summary_'+ product + excel_sub_file_name  + '.xlsx'
+        self.flow =  self.file_read_class.mt_class_list[0].actualflow_name
         self.wb = xlsxwriter_Workbook(self.filename, options={'default_format_properties': {'font_name': '微软雅黑', 'font_size': 9,}})
         # style list
         self.style1 = self.wb.add_format({'align': 'center', 'valign': 'vcenter', 'border': 1})
@@ -791,7 +792,7 @@ class ExcelPrint:
                     self.summary_index += 1
                     self.summary_row += 1
     def test_time_excel(self):
-        test_time_ws = self.wb.add_worksheet('CFL_TT')
+        test_time_ws = self.wb.add_worksheet(self.flow + '_TT')
         test_time_ws.freeze_panes(1, 0)
         test_time_ws.set_column('A:A', 50)
         test_time_ws.set_column('B:I', 9.5)
@@ -831,9 +832,9 @@ class ExcelPrint:
                                         {'type': '3_color_scale', 'min_color': '#63BE7B', 'max_color': '#F8696B'})
         if self.summary_enable:
             self.summary_ws.write(self.summary_row, self.summary_col, self.summary_index, self.style1)
-            self.summary_ws.write(self.summary_row, self.summary_col + 1, 'CFL_TT', self.style1)
+            self.summary_ws.write(self.summary_row, self.summary_col + 1, self.flow+'_TT', self.style1)
             self.summary_ws.write_url(self.summary_row, self.summary_col + 2,
-                                      'internal:CFL_TT!B2', self.style2)
+                                      'internal:'+self.flow+'_TT!B2', self.style2)
             self.summary_ws.write(self.summary_row, self.summary_col + 2, 'Review', self.style2)
             self.summary_index += 1
             self.summary_row += 1
