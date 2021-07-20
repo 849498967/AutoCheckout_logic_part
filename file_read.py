@@ -112,7 +112,13 @@ class FileReadClass:
             file_name = None
             current_mt_class = None
             for mt_line in self.mt_datalog_file_in:
-                # max_chips_per_bank/program name/rev/technology/design input
+                # max_chips_per_bank/program name/rev/technology/design input/flow
+                actualflowname_match = re_match(r'Flow:(.*)', mt_line)
+                if actualflowname_match:
+                    actualflowname = actualflowname_match.group(1).strip()
+                actualflowname_match1 = re_match(r'FOLDERNAME (.*)', mt_line)
+                if actualflowname_match1:
+                    actualflowname = actualflowname_match1.group(1).split('_')[-1].strip()
                 max_chips_per_bank_match = re_match(r'max_chips_per_bank = (.*)', mt_line)
                 if max_chips_per_bank_match:
                     max_chips_per_bank = max_chips_per_bank_match.group(1)
@@ -180,7 +186,7 @@ class FileReadClass:
                     self.mt_datalog_list.append(mt_file_number)
                     current_mt_class = mt_per_die.MTPerDieClass(mt_file_number, program_name, program_rev,
                                                                 program_tech, program_design, program_die,
-                                                                max_chips_per_bank, file_name)
+                                                                max_chips_per_bank, file_name,actualflowname)
                     self.mt_class_list.append(current_mt_class)
                     mt_datalog_number += 1
                 # if re_match(r'Start Test: tb_cdtTest .*', mt_line):
@@ -190,7 +196,7 @@ class FileReadClass:
                     self.mt_datalog_list.append(mt_file_number)
                     current_mt_class = mt_per_die.MTPerDieClass(mt_file_number, program_name, program_rev,
                                                                 program_tech, program_design, program_die,
-                                                                max_chips_per_bank, file_name)
+                                                                max_chips_per_bank, file_name,actualflowname)
                     self.mt_class_list.append(current_mt_class)
                     mt_datalog_number += 1
                 if re_match(r'.*Test End Action.*', mt_line):

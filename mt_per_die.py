@@ -3,10 +3,11 @@ from re import match as re_match
 
 class MTPerDieClass:
     def __init__(self, name, mt_program_name, mt_program_rev, mt_technology, mt_design, mt_die, max_chips_per_bank,
-                 file_name):
+                 file_name,actualflowname):
         self.BB_incoming = False
         self.BC_incoming = False
         self.name = name
+        self.actualflow_name = actualflowname
         self.mt_program_name = mt_program_name
         self.mt_program_rev = mt_program_rev
         self.mt_technology = mt_technology
